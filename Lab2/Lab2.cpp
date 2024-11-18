@@ -13,6 +13,7 @@ GLfloat deg = 0;
 int sx =0,sy = 0,sz = 0; 
 bool spin = false;
 bool drawTeapot = true;
+bool color = false;
 int eggMode = 0;
 float totalRotationX = 0.0f;
 float totalRotationY = 0.0f;
@@ -27,6 +28,7 @@ struct pointsRgb{
     float g = 0.0;
     float b = 0.0;
 }typedef pointsRgb;
+
 class Egg{
 	private:
 	int density;
@@ -43,7 +45,7 @@ class Egg{
 	}
 	void generateMatrix(float scale){
 		
-		for(int u=0;u<(density/2)-6;u++){
+		for(int u=0;u<(density/2);u++){
 			float _u = u/((float)density-1);
 			for(int v=0;v<density;v++){
 				float _v = v/((float)density-1);
@@ -51,10 +53,16 @@ class Egg{
 				pointsMatrix[u][v].x = scale*((-90*pow(_u,5)) + (255*pow(_u,4)) - (270*pow(_u,3)) + (180*pow(_u,2)) - (45*_u)) * cos(M_PI*_v);
 				pointsMatrix[u][v].y = scale*((160*pow(_u,4)) - (320*pow(_u,3)) + (160 * pow(_u,2)) - 5);
 				pointsMatrix[u][v].z = scale*((-90*pow(_u,5)) + (255*pow(_u,4)) - (270*pow(_u,3)) + (180*pow(_u,2)) - (45*_u)) * sin(M_PI*_v);
-			
-				pointsMatrix[u][v].r = randFloat();
-				pointsMatrix[u][v].g = randFloat();
-				pointsMatrix[u][v].b = randFloat();
+				if(color){
+					pointsMatrix[u][v].r = randFloat();
+					pointsMatrix[u][v].g = randFloat();
+					pointsMatrix[u][v].b = randFloat();
+				}else{
+					pointsMatrix[u][v].r = 0.0f;
+					pointsMatrix[u][v].g = 0.0f;
+					pointsMatrix[u][v].b = 0.0f;
+				}
+				
 			}
 		}
 	}
@@ -114,7 +122,7 @@ class Egg{
 
 	}
 };
-Egg egg(98);
+Egg egg(100);
 void toggleFocusToConsole() {
 	ShowWindow(glutWindow, SW_HIDE);  
     ShowWindow(consoleWindow, SW_SHOWNORMAL);  
@@ -138,6 +146,13 @@ void reset_rotation(){
 	totalRotationY = 0.0f;
 	totalRotationZ = 0.0f;
 }
+string bool_to_string(bool convert){
+    if(convert){
+        return "true";
+    }else{
+        return "false";
+    }
+}
 void menu(){
 	toggleFocusToConsole();
 	reset_rotation();
@@ -146,7 +161,8 @@ void menu(){
 	cout<<"2. Narysuj jajko (punkty)\n";
 	cout<<"3. Narysuj jajko (linie)\n";
 	cout<<"4. Narysuj jajko (trojkaty) \n";
-	cout<<"5. Zakoncz program\n";
+	cout<<"5. Rysowanie w kolorze: "<<bool_to_string(color)<<"\n";
+	cout<<"6. Zakoncz program\n";
 	cout<<"> ";
 	int x;
 	cin>> x;
@@ -168,6 +184,11 @@ void menu(){
 		eggMode = 3;
 		break;
 	case 5:
+		color=!color;
+		egg.generateMatrix(0.5f);
+		menu();
+		break;
+	case 6:
 		exit(0);
 		break;
 	default:
@@ -181,26 +202,32 @@ void menu(){
 void keyDown(u_char key,int x,int y){
 	switch (key)
 	{
+	case 'Q':
 	case 'q':
 		sz=1;
 		glutIdleFunc(animate);
 		break;
+	case 'E':
 	case 'e':
 		sz=-1;
 		glutIdleFunc(animate);
 		break;
+	case 'W':
 	case 'w':
 		sx=-1;
 		glutIdleFunc(animate);
 		break;
+	case 'S':
 	case 's':
 		sx=1;
 		glutIdleFunc(animate);
 		break;
+	case 'A':
 	case 'a':
 		sy=-1;
 		glutIdleFunc(animate);
 		break;
+	case 'D':
 	case 'd':
 		sy=1;
 		glutIdleFunc(animate);
@@ -212,14 +239,20 @@ void keyDown(u_char key,int x,int y){
 void keyUp(u_char key,int x,int y){
 	switch (key)
 	{
+	case 'E':
+	case 'Q':
 	case 'e':
 	case 'q':
 		sz=0;
 		break;
+	case 'W':
+	case 'S':
 	case 'w':
 	case 's':
 		sx=0;
 		break;
+	case 'A':
+	case 'D':
 	case 'd':
 	case 'a':
 		sy=0;
