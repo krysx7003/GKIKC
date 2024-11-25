@@ -15,9 +15,11 @@ bool spin = false;
 bool drawTeapot = true;
 bool color = false;
 int eggMode = 0;
-float totalRotationX = 0.0f;
-float totalRotationY = 0.0f;
-float totalRotationZ = 0.0f;
+float totalRotationX = 0.0f,totalRotationY = 0.0f,totalRotationZ = 0.0f;
+int radius = 6,lastX = 0,lastY = 0;
+float cameraRotationX = 0.0f,cameraRotationY = 0.0f,cameraRotationZ = radius;
+float phi = 0.0f;       
+float theta = 0.0f; 
 struct pointsRgb{
     //Pozycja
     float x = 0.0;
@@ -38,18 +40,17 @@ class Egg{
 	}
 	public:
 	Egg(int density ) : density(density){
-		pointsMatrix.resize(density,vector<pointsRgb>(density*2));
+		pointsMatrix.resize(density,vector<pointsRgb>(density));
 	}
 	vector<vector<pointsRgb>> getPointsMatrix(){
 		return pointsMatrix;
 	}
-	void generateMatrix(float scale){
-		
-		for(int u=0;u<(density/2);u++){
+	void generateMatrix(float scale){	
+		for(int u=0;u<(density/2)-6;u++){
 			float _u = u/((float)density-1);
-			for(int v=0;v<density;v++){
+			for(int v=0;v<density+1;v++){
 				float _v = v/((float)density-1);
-				_v *= 2.0f * M_PI;
+				_v *= 2.0f;
 				pointsMatrix[u][v].x = scale*((-90*pow(_u,5)) + (255*pow(_u,4)) - (270*pow(_u,3)) + (180*pow(_u,2)) - (45*_u)) * cos(M_PI*_v);
 				pointsMatrix[u][v].y = scale*((160*pow(_u,4)) - (320*pow(_u,3)) + (160 * pow(_u,2)) - 5);
 				pointsMatrix[u][v].z = scale*((-90*pow(_u,5)) + (255*pow(_u,4)) - (270*pow(_u,3)) + (180*pow(_u,2)) - (45*_u)) * sin(M_PI*_v);
@@ -71,7 +72,7 @@ class Egg{
 		{
 		case 1:
 			glBegin(GL_POINTS);
-			for(int u=0;u<(density/2)-6;u++){
+			for(int u=0;u<(density/2)-7;u++){
 				for(int v=0;v<density;v++){
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
@@ -82,7 +83,7 @@ class Egg{
 		case 2:
 			glBegin(GL_LINES);
 			for(int u=0;u<(density/2)-7;u++){
-				for(int v=0;v<density-1;v++){
+				for(int v=0;v<density;v++){
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
 					glColor3f(pointsMatrix[u+1][v].r, pointsMatrix[u+1][v].g, pointsMatrix[u+1][v].b);
@@ -100,23 +101,26 @@ class Egg{
 		case 3:
 			glBegin(GL_TRIANGLES);
 			for(int u=0;u<(density/2)-7;u++){
-				for(int v=1;v<density/3;v++){
+				for(int v=0;v<density;v++){
+					int nextV = (v + 1) % density;
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
-					glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
-					glVertex3f(pointsMatrix[u+1][v-1].x, pointsMatrix[u+1][v-1].y, pointsMatrix[u+1][v-1].z);
-					
 					glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
-					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
 					glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
-					glVertex3f(pointsMatrix[u][v+1].x, pointsMatrix[u][v+1].y, pointsMatrix[u][v+1].z);	
+					glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
+					glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);
 					
+					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
+					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
+					glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
+					glVertex3f(pointsMatrix[u][nextV].x, pointsMatrix[u][nextV].y, pointsMatrix[u][nextV].z);
+					glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
+					glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);		
 				}
 			}
 			glEnd();
 			break;
 		}
-
 	}
 	~Egg(){
 
@@ -145,6 +149,12 @@ void reset_rotation(){
 	totalRotationX = 0.0f;
 	totalRotationY = 0.0f;
 	totalRotationZ = 0.0f;
+	radius = 6;
+	cameraRotationX = 0.0f;
+	cameraRotationY = 0.0f;
+	cameraRotationZ = radius;
+	lastX = 0;
+	lastY = 0;
 }
 string bool_to_string(bool convert){
     if(convert){
@@ -152,6 +162,20 @@ string bool_to_string(bool convert){
     }else{
         return "false";
     }
+}
+void printControls(){
+	cout<<"A D - obrot po osi Y\n";
+	cout<<"W S - obrot po osi X\n";
+	cout<<"Q E - obrot po osi Z\n";
+	cout<<"ESC - Powrot do menu (okno konsolowe)\n";
+	cout<<"Nalezy nacisnac i przytrzymac PPM\n";
+	cout<<"Ruch myszy w osi X - Obrot kamery w osi X\n";
+	cout<<"Ruch myszy w osi Y - Obrot kamery w osi Y\n";
+	cout<<"Scroll up - Przybilizenie obiektu\n";
+	cout<<"Scroll down - Oddalenie obiektu\n";
+	cout<<"Nacisnij Enter zeby kontynuowac\n"<<flush;
+	cin.get();
+	cin.get();
 }
 void menu(){
 	toggleFocusToConsole();
@@ -162,7 +186,8 @@ void menu(){
 	cout<<"3. Narysuj jajko (linie)\n";
 	cout<<"4. Narysuj jajko (trojkaty) \n";
 	cout<<"5. Rysowanie w kolorze: "<<bool_to_string(color)<<"\n";
-	cout<<"6. Zakoncz program\n";
+	cout<<"6. Kontrola\n";
+	cout<<"7. Zakoncz program\n";
 	cout<<"> ";
 	int x;
 	cin>> x;
@@ -189,6 +214,10 @@ void menu(){
 		menu();
 		break;
 	case 6:
+		printControls();
+		menu();
+		break;
+	case 7:
 		exit(0);
 		break;
 	default:
@@ -267,16 +296,45 @@ void keyUp(u_char key,int x,int y){
         glutIdleFunc(nullptr); 
     }
 }
+void mouse(int x, int y){
+	float sensitivity =0.75f;
+	float phi = sensitivity*((2.0f * y / 400) - 1.0f);           
+	float theta = sensitivity*((2.0f * (400 - x) / 400) - 1.0f);
+	float maxPhi = 1.75f;  // Restrict phi range to avoid gimbal lock (approx ±85 degrees)
+    if (phi > maxPhi){
+		phi = maxPhi;
+	} 
+    if (phi < -maxPhi){
+		phi = -maxPhi;
+	} 
+	cameraRotationX = radius*cos(theta)*cos(phi);
+	cameraRotationY = radius*sin(phi);
+	cameraRotationZ = radius*sin(theta)*cos(phi);
+	lastX = x;
+	lastY = y;
+	glutPostRedisplay();
+}
+void mouseWheel(int button, int dir, int x, int y){
+	if (dir > 0){
+        radius -= 1;
+    }else{
+        radius += 1;
+    }
+	if(radius>=10){
+		radius=10;
+	}
+	if(radius<=1){
+		radius=1;
+	}
+	glutPostRedisplay();
+}
 void display() {
 	GLfloat lPos[] = {0,4,0,1};//x,y,z,czy światło jest odległe
 	GLfloat col[] = {1,0,0,1};
 	glLoadIdentity();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glLightfv(GL_LIGHT0,GL_POSITION,lPos);
-	gluLookAt(0,0,6,0,0,0,0,1,0);//Ustawienie kamery
-	//Pierwsze trzy lokalizacja
-	//Gdzie patrzy
-	//Tilt kamery
+	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);//Ustawienie kamery
 	glRotatef(totalRotationX, 1.0f, 0.0f, 0.0f);
     glRotatef(totalRotationY, 0.0f, 1.0f, 0.0f); 
     glRotatef(totalRotationZ, 0.0f, 0.0f, 1.0f);
@@ -284,8 +342,6 @@ void display() {
 		glutWireTeapot(1);
 	}else{
 		glPushMatrix();
-			//glTranslatef(0.0f, -1.5f, -5.0f); // Adjust to bring the egg into view
-			//glScalef(0.5f, 0.5f, 0.5f);
 			egg.draw(eggMode);
 		glPopMatrix();
 	}
@@ -314,6 +370,8 @@ int main(int argc, char** argv){
 	glutIdleFunc(nullptr);
 	glutKeyboardFunc(keyDown);
 	glutKeyboardUpFunc(keyUp);
+	glutMotionFunc(mouse);
+	glutMouseWheelFunc(mouseWheel);
 	menu();
 	
 	glutMainLoop();
