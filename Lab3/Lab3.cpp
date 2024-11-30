@@ -46,14 +46,28 @@ class Egg{
 		return pointsMatrix;
 	}
 	void generateMatrix(float scale){	
-		for(int u=0;u<(density/2)-6;u++){
-			float _u = u/((float)density-1);
-			for(int v=0;v<density+1;v++){
-				float _v = v/((float)density-1);
+		for(int u=0;u<(density);u++){
+			float _u = 0.5/((float)density-1);
+			_u *= u;
+			if(u==density-1){
+				pointsMatrix[u][0].y = scale*((160*pow(_u,4)) - (320*pow(_u,3)) + (160 * pow(_u,2)) - 5);
+				if(color){
+					pointsMatrix[u][0].r = randFloat();
+					pointsMatrix[u][0].g = randFloat();
+					pointsMatrix[u][0].b = randFloat();
+				}else{
+					pointsMatrix[u][0].r = 0.0f;
+					pointsMatrix[u][0].g = 0.0f;
+					pointsMatrix[u][0].b = 0.0f;
+				}
+				break;
+			}
+			for(int v=0;v<density;v++){
+				float _v = v/((float)density);
 				_v *= 2.0f;
-				pointsMatrix[u][v].x = scale*((-90*pow(_u,5)) + (255*pow(_u,4)) - (270*pow(_u,3)) + (180*pow(_u,2)) - (45*_u)) * cos(M_PI*_v);
-				pointsMatrix[u][v].y = scale*((160*pow(_u,4)) - (320*pow(_u,3)) + (160 * pow(_u,2)) - 5);
-				pointsMatrix[u][v].z = scale*((-90*pow(_u,5)) + (255*pow(_u,4)) - (270*pow(_u,3)) + (180*pow(_u,2)) - (45*_u)) * sin(M_PI*_v);
+				pointsMatrix[u][v].x = scale*((-90*pow(_u,5) + 225*pow(_u,4) - 270*pow(_u,3) + 180*pow(_u,2) - 45*_u) * cos(M_PI*_v));
+				pointsMatrix[u][v].y = scale*(160*pow(_u,4) - 320*pow(_u,3) + 160 * pow(_u,2) - 5);
+				pointsMatrix[u][v].z = scale*((-90*pow(_u,5) + 225*pow(_u,4) - 270*pow(_u,3) + 180*pow(_u,2) - 45*_u) * sin(M_PI*_v));
 				if(color){
 					pointsMatrix[u][v].r = randFloat();
 					pointsMatrix[u][v].g = randFloat();
@@ -63,7 +77,6 @@ class Egg{
 					pointsMatrix[u][v].g = 0.0f;
 					pointsMatrix[u][v].b = 0.0f;
 				}
-				
 			}
 		}
 	}
@@ -71,8 +84,19 @@ class Egg{
 		switch (model)
 		{
 		case 1:
+			glPointSize(5.0f);
 			glBegin(GL_POINTS);
-			for(int u=0;u<(density/2)-7;u++){
+			for(int u=0;u<density-1;u++){
+				if(u==0){
+					glColor3f(pointsMatrix[u][0].r,pointsMatrix[u][0].g,pointsMatrix[u][0].b);
+					glVertex3f(pointsMatrix[u][0].x,pointsMatrix[u][0].y,pointsMatrix[u][0].z);
+					continue;
+				}
+				if(u==density-2){
+					glColor3f(pointsMatrix[u+1][0].r,pointsMatrix[u+1][0].g,pointsMatrix[u+1][0].b);
+					glVertex3f(pointsMatrix[u+1][0].x,pointsMatrix[u+1][0].y,pointsMatrix[u+1][0].z);
+					break;
+				}
 				for(int v=0;v<density;v++){
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
@@ -82,8 +106,27 @@ class Egg{
 			break;
 		case 2:
 			glBegin(GL_LINES);
-			for(int u=0;u<(density/2)-7;u++){
+			for(int u=0;u<density-1;u++){
+				if(u==0){
+					for(int v=0;v<density;v++){
+						glColor3f(pointsMatrix[u][0].r,pointsMatrix[u][0].g,pointsMatrix[u][0].b);
+						glVertex3f(pointsMatrix[u][0].x,pointsMatrix[u][0].y,pointsMatrix[u][0].z);
+						glColor3f(pointsMatrix[u+1][v].r, pointsMatrix[u+1][v].g, pointsMatrix[u+1][v].b);
+						glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
+					}
+					continue;
+				}
+				if(u==density-2){
+					for(int v=0;v<density;v++){
+						glColor3f(pointsMatrix[u+1][0].r,pointsMatrix[u+1][0].g,pointsMatrix[u+1][0].b);
+						glVertex3f(pointsMatrix[u+1][0].x,pointsMatrix[u+1][0].y,pointsMatrix[u+1][0].z);
+						glColor3f(pointsMatrix[u][v].r, pointsMatrix[u][v].g, pointsMatrix[u][v].b);
+						glVertex3f(pointsMatrix[u][v].x, pointsMatrix[u][v].y, pointsMatrix[u][v].z);
+					}
+					break;
+				}
 				for(int v=0;v<density;v++){
+					int nextV = (v + 1) % density;
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
 					glColor3f(pointsMatrix[u+1][v].r, pointsMatrix[u+1][v].g, pointsMatrix[u+1][v].b);
@@ -91,8 +134,8 @@ class Egg{
 					
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
-					glColor3f(pointsMatrix[u][v+1].r, pointsMatrix[u][v+1].g, pointsMatrix[u][v+1].b);
-        			glVertex3f(pointsMatrix[u][v+1].x, pointsMatrix[u][v+1].y, pointsMatrix[u][v+1].z);
+					glColor3f(pointsMatrix[u][nextV].r, pointsMatrix[u][nextV].g, pointsMatrix[u][nextV].b);
+        			glVertex3f(pointsMatrix[u][nextV].x, pointsMatrix[u][nextV].y, pointsMatrix[u][nextV].z);
 					
 				}
 			}
@@ -100,22 +143,46 @@ class Egg{
 			break;
 		case 3:
 			glBegin(GL_TRIANGLES);
-			for(int u=0;u<(density/2)-7;u++){
+			for(int u=0;u<density-1;u++){
+				if(u==0){
+					for(int v=0;v<density;v++){
+						int nextV = (v + 1) % density;
+						glColor3f(pointsMatrix[u][0].r,pointsMatrix[u][0].g,pointsMatrix[u][0].b);
+						glVertex3f(pointsMatrix[u][0].x,pointsMatrix[u][0].y,pointsMatrix[u][0].z);
+						glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
+						glVertex3f(pointsMatrix[u+1][nextV].x,pointsMatrix[u+1][nextV].y,pointsMatrix[u+1][nextV].z);
+						glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
+						glVertex3f(pointsMatrix[u+1][v].x,pointsMatrix[u+1][v].y,pointsMatrix[u+1][v].z);
+					}
+					continue;
+				}
+				if(u==density-2){
+					for(int v=0;v<density;v++){
+						int nextV = (v + 1) % density;
+						glColor3f(pointsMatrix[u+1][0].r,pointsMatrix[u+1][0].g,pointsMatrix[u+1][0].b);
+						glVertex3f(pointsMatrix[u+1][0].x,pointsMatrix[u+1][0].y,pointsMatrix[u+1][0].z);
+						glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
+						glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
+						glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
+						glVertex3f(pointsMatrix[u][nextV].x,pointsMatrix[u][nextV].y,pointsMatrix[u][nextV].z);
+					}
+					break;
+				}
 				for(int v=0;v<density;v++){
 					int nextV = (v + 1) % density;
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
-					glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
-					glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
 					glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
 					glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);
+					glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
+					glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
 					
+					glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
+					glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);	
 					glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
 					glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
 					glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
 					glVertex3f(pointsMatrix[u][nextV].x, pointsMatrix[u][nextV].y, pointsMatrix[u][nextV].z);
-					glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
-					glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);		
 				}
 			}
 			glEnd();
@@ -126,7 +193,7 @@ class Egg{
 
 	}
 };
-Egg egg(100);
+Egg egg(20);
 void toggleFocusToConsole() {
 	ShowWindow(glutWindow, SW_HIDE);  
     ShowWindow(consoleWindow, SW_SHOWNORMAL);  
@@ -341,9 +408,8 @@ void display() {
 	if(drawTeapot){
 		glutWireTeapot(1);
 	}else{
-		glPushMatrix();
-			egg.draw(eggMode);
-		glPopMatrix();
+		glShadeModel(GL_FLAT);
+		egg.draw(eggMode);
 	}
 	glutSwapBuffers();
 }	
@@ -355,6 +421,12 @@ void Init() {
 	glLoadIdentity();
 	glFrustum(-1,1,-1,1,2,10);
 	glMatrixMode(GL_MODELVIEW);
+	// // Włącza culling, czyli pomijanie tylnych ścianek
+	// glEnable(GL_CULL_FACE);
+    // // Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
+    // glFrontFace(GL_CW);
+    // // Ustawia pomijanie tylnych ścianek
+    glCullFace(GL_BACK);
 	//glEnable(GL_LIGHTING); //Włączenie oświetlenia
 	//glEnable(GL_LIGHT0); //Dodanie źródła światła
 }
