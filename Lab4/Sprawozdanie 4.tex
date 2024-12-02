@@ -4,6 +4,11 @@
 \usepackage{titlesec}
 \usepackage{datetime}
 \usepackage{geometry}
+\usepackage{minted}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage[document]{ragged2e}
 \geometry{
  a4paper,
  left=25mm,
@@ -18,6 +23,7 @@
 \author{Krzysztof Zalewa}
 \date{\daymonthyear\today}
 \renewcommand*\contentsname{Spis treści}
+\renewcommand{\listingscaption}{Fragment kodu}
 \begin{document}
   \maketitle
   \pagebreak
@@ -32,11 +38,38 @@
   \subsubsection{Temat 1.1}
 
   \section{Zadanie laboratoryjne}
-  Lorem  ipsum  dolor  sit  amet,  consectetuer  adipiscing  
-  elit.   Etiam  lobortisfacilisis sem.  Nullam nec mi et 
-  neque pharetra sollicitudin.  Praesent imperdietmi nec ante. 
-  Donec ullamcorper, felis non sodales...
-
+  \subsection{Treść zadania}
+  \subsection{Opis działania programu}
+  Zgodnie z treścią zadania program rysuje 4 obiekty. Domyślnie 
+  jajko i czajnik rysowane są w kolorze czarnym. Jednakże jest 
+  możliwość zmiany koloru na losowy. Wyświetlone obiekty można 
+  obracać za pomocą klawiatury (Przycisk musi być wciśnięty i 
+  przytrzymany).\linebreak 
+  \textbf{Kontrola obrotu:}\linebreak  
+  \textbf{A D} -obrót po osi Y\linebreak 
+  \textbf{W S} - obrót po osi X\linebreak 
+  \textbf{Q E} - obrót po osi Z\linebreak 
+  \textbf{ESC} - Powrót do menu (okno konsolowe)\linebreak 
+  \textbf{Ruch myszy w osi X} - Obrót kamery w osi X\linebreak 
+  \textbf{Ruch myszy w osi Y} - Obrót kamery w osi Y\linebreak 
+  \textbf{Scroll up} - Przybiliżenie obiektu\linebreak 
+  \textbf{Scroll down} - Oddalenie obiektu\linebreak 
+  \subsection{Kod programu}
+  \begin{frame}
+    \scriptsize
+    \inputminted[
+        style={vs},
+        breaklines,
+        breakanywhere, 
+        linenos, 
+        tabsize=4 
+    ]{c++}{Lab4.cpp}
+    \vspace{1em}
+    \captionsetup{justification=centering}
+    \captionof{listing}{Fragment kodu z programu}
+    \label{lst:code}
+  \end{frame}
+    
   \section{Wnioski}
   Lorem  ipsum  dolor  sit  amet,  consectetuer  adipiscing  
   elit.   Etiam  lobortisfacilisis sem.  Nullam nec mi et 

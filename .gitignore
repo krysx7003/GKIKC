@@ -8,3 +8,4 @@ Makefile
 *.log
 *.synctex.gz
 *.toc
+*.minted
