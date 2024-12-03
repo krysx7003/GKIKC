@@ -14,6 +14,18 @@ Egg::Egg(int density ) : density(density){
 vector<vector<pointsRgb>> Egg::getPointsMatrix(){
     return pointsMatrix;
 }
+void Egg::generateNormalVect(int u,int v){
+    float x_u = (-450*pow(u,4) + 900*pow(u,3) - 810*pow(u,2) + 360*u - 45) * cos(M_PI*v);
+    float x_v = M_PI * (90*pow(u,5) - 225*pow(u,4) + 270*pow(u,3) - 180*pow(u,2) + 45*u) * sin(M_PI*v);
+    float y_u = 640*pow(u,3) - 960*pow(u,2) + 320*u;
+    float y_v = 0;
+    float z_u = (-450*pow(u,4) + 900*pow(u,3) - 810*pow(u,2) + 360*u - 45) * sin(M_PI*v);
+    float z_v = -M_PI * (90*pow(u,5) - 225*pow(u,4) + 270*pow(u,3) - 180*pow(u,2) + 45*u) * cos(M_PI*v);
+    y_u * z_v - z_u * y_v;
+    z_u * x_v - x_u * z_v;
+    x_u * y_v - y_v * x_v;
+    //TODO - Trzeba znormalizować
+}
 void Egg::generateMatrix(){	
     for(int u=0;u<(density);u++){
         float _u = 0.5/((float)density-1);

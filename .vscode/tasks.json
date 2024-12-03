@@ -73,10 +73,10 @@
                 "--build",
                 "build/debug",
                 "--config",
-                "Debug" 
+                "Debug"
             ],
             "dependsOn": [
-                "CMake Configure Debug",
+                "CMake Configure Debug"
             ],
             "group": {
                 "kind": "build",
