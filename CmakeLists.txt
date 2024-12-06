@@ -21,6 +21,7 @@ add_executable(Lab3
 add_executable(Lab4
         Lab4/Lab4.cpp
         Lab4/Egg.cpp
+        lab4/Light.cpp
         )
 target_link_libraries(Lab1 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})
 target_link_libraries(Lab2 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})

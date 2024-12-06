@@ -10,10 +10,6 @@ struct pointsRgb{
     float r = 0.0;
     float g = 0.0;
     float b = 0.0;
-    //Parametry odbicia światła
-    float a = 0.0;
-    float d = 0.0;
-    float s = 0.0;
     //Wektor normalny
     float nx = 0.0;
     float ny = 0.0;
@@ -38,7 +34,8 @@ class Egg{
     Egg(int density);
     //Methods
     void generateMatrix();
-    void generateNormalVect(int u,int v);
+    point generateNormalVect(int u,int v);
+    void initMaterial();
     void draw(int model);
     //Setters
     void setDensity(int newDensity);

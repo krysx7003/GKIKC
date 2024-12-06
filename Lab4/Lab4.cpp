@@ -6,6 +6,7 @@
 #define FREEGLUT_STATIC
 #include <GL/freeglut.h>
 #include "Egg.hpp"
+#include "Light.hpp"
 using namespace std;
 HWND consoleWindow;     
 HWND glutWindow;
@@ -15,34 +16,20 @@ int sx =0,sy = 0,sz = 0;
 bool spin = false;
 bool drawTeapot = true,smooth = true;
 int eggMode = 0,moveMode = 0;
-float sensitivity = 0.75f;
+float sensitivity = 0.01f;
 float totalRotationX = 0.0f,totalRotationY = 0.0f,totalRotationZ = 0.0f;
 int radius = 6,lastX = 0,lastY = 0;
 float cameraRotationX = 0.0f,cameraRotationY = 0.0f,cameraRotationZ = radius;
+Light light1(GL_LIGHT0);
 int light1Radius = 10;
-float light1RotationX = 0.0f,light1RotationY = 0.0f,light1RotationZ = light1Radius;
+float light1RotationX = light1Radius,light1RotationY = light1Radius,light1RotationZ = light1Radius;
+Light light2(GL_LIGHT1);
 int light2Radius = 10;
-float light2RotationX = 0.0f,light2RotationY = 0.0f,light2RotationZ = light2Radius;
-float phi = 0.0f;       
-float theta = 0.0f;
+float light2RotationX = light2Radius,light2RotationY = light2Radius,light2RotationZ = light2Radius;
+float yaw = 0.0f;       
+float pitch = 0.0f;
 
-struct light{
-	float mat_ambient[4] = {1.0, 1.0, 1.0, 1.0};
-	float mat_diffuse[4] = {1.0, 1.0, 1.0, 1.0};
-	float mat_specular[4] = {1.0, 1.0, 1.0, 1.0};
-
-	float mat_shininess = 20.0;
-
-	//Kolor ustawić raz
-	float light_ambient[4] = {0.1, 0.1, 0.0, 1.0};
-	float light_diffuse[4] = {0.8, 0.8, 0.0, 1.0};
-	float light_specular[4] = {1.0, 1.0, 1.0, 1.0};
-	float light_position[4] = {1.0, 0.0, 10.0, 1.0};
-	float att_constant = 1.0;
-	float att_linear = 0.05;
-	float att_quadratic = 0.001;
-};
-Egg egg(20);
+Egg egg(100);
 void toggleFocusToConsole() {
 	ShowWindow(glutWindow, SW_HIDE);  
     ShowWindow(consoleWindow, SW_SHOWNORMAL);  
@@ -101,8 +88,7 @@ void printOptions(){
 	cout<<"4.Promien kamery: "<<radius<<"\n";
 	cout<<"5.Czulosc myszki: "<<sensitivity<<"\n";
 	cout<<"6.Rozmiar punktow: "<<pointSize<<"\n";
-	cout<<"7.Niewidoczne trojkaty: "<<bool_to_string(smooth)<<"\n";
-	cout<<"8.Wroc do menu"<<"\n";
+	cout<<"7.Wroc do menu"<<"\n";
 	cout<<"> ";
 	int x;
 	cin>>x;
@@ -147,10 +133,6 @@ void printOptions(){
 		printOptions();
 		break;
 	case 7:
-		smooth =! smooth;
-		printOptions();
-		break;
-	case 8:
 		menu();
 		break;
 	}
@@ -239,33 +221,31 @@ void normalKey(u_char key,int x,int y){
     }
 }
 void mouse(int x, int y){
-	float phi,theta,maxPhi;
-	int dX,dY;
-	phi = sensitivity*((2.0f * y / 400) - 1.0f);           
-	theta = sensitivity*((2.0f * (400 - x) / 400) - 1.0f);
+	int dX = x - lastX;
+	int dY = lastY- y ;
+	float phi = sensitivity * dX;          
+	float theta = sensitivity * dY;
+	yaw += phi;
+	pitch += theta;
 	switch(moveMode){
 		case 0:
-			dX = x - lastX;
-			dY = y - lastY;
-			totalRotationX += sensitivity * dY;
-			totalRotationY += sensitivity * dX;
-			//TODO - Naprawić to gówno
-			// totalRotationZ += sensitivity * (dX - dY);
+			totalRotationX += dY;
+			totalRotationY += dX;
 			break;
 		case 1:
-			cameraRotationX = radius*cos(theta)*cos(phi);
-			cameraRotationY = radius*sin(phi);
-			cameraRotationZ = radius*sin(theta)*cos(phi);
+			cameraRotationX = -radius*sin(yaw)*cos(pitch);
+			cameraRotationY = radius*sin(pitch);
+			cameraRotationZ = radius*cos(yaw)*cos(pitch);
 			break;
 		case 2:
-			light1RotationX = radius*cos(theta)*cos(phi);
-			light1RotationY = radius*sin(phi);
-			light1RotationZ = radius*sin(theta)*cos(phi);
+			light1RotationX = -radius*sin(yaw)*cos(pitch);
+			light1RotationY = radius*sin(pitch);
+			light1RotationZ = radius*cos(yaw)*cos(pitch);
 			break;
 		case 3:
-			light2RotationX = radius*cos(theta)*cos(phi);
-			light2RotationY = radius*sin(phi);
-			light2RotationZ = radius*sin(theta)*cos(phi);
+			light2RotationX = -radius*sin(yaw)*cos(pitch);
+			light2RotationY = radius*sin(pitch);
+			light2RotationZ = radius*cos(yaw)*cos(pitch);
 			break;
 	}
 	lastX = x;
@@ -289,23 +269,21 @@ void mouseWheel(int button, int dir, int x, int y){
 }
 void display() {
 	GLfloat lPos1[] = {light1RotationX,light1RotationY,light1RotationZ,1};//x,y,z,czy światło jest odległe
-	GLfloat lPos2[] = {light1RotationX,light1RotationY,light1RotationZ,1};
+	GLfloat lPos2[] = {light2RotationX,light2RotationY,light2RotationZ,1};
 	GLfloat col[] = {1,0,0,1};
 	glLoadIdentity();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLightfv(GL_LIGHT0,GL_POSITION,lPos1);
+	light1.setPosition(lPos1);
+	light2.setPosition(lPos2);
 	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);//Ustawienie kamery
 	glRotatef(totalRotationX, 1.0f, 0.0f, 0.0f);
     glRotatef(totalRotationY, 0.0f, 1.0f, 0.0f); 
     glRotatef(totalRotationZ, 0.0f, 0.0f, 1.0f);
 	if(drawTeapot){ 
-		glutWireTeapot(1);
+		glutSolidTeapot(1);
 	}else{
-		if(smooth){
-			glShadeModel(GL_SMOOTH);
-		}else{
-			glShadeModel(GL_FLAT);
-		}
+		glEnable(GL_COLOR_MATERIAL);
+		egg.initMaterial();
 		egg.draw(eggMode);
 	}
 	glutSwapBuffers();
@@ -313,7 +291,7 @@ void display() {
 void Init() {
 	egg.generateMatrix();
 	glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glFrustum(-1,1,-1,1,2,20);
@@ -324,25 +302,17 @@ void Init() {
     glFrontFace(GL_CW);
     // Ustawia pomijanie tylnych ścianek
     glCullFace(GL_BACK);
-	// Właściwości do punktu stałe
-	// glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	// glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	// glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	// glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
-	light light1;
 	// Kolor stały
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light1.light_ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light1.light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light1.light_specular);
-	glLightfv(GL_LIGHT0, GL_POSITION, light1.light_position);
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, light1.att_constant);
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, light1.att_linear);
-	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, light1.att_quadratic);
+	light1.setColor(1.0,0.0,0.0);
+	light2.setColor(1.0,1.0,1.0);
+	light1.initLight();
+	light2.initLight();
 	//Drugie światło
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_LIGHTING); //Włączenie oświetlenia
 	glEnable(GL_LIGHT0); //Dodanie źródła światła
 	glEnable(GL_LIGHT1);
+	
 }
 // Sprawko do 15 w pon
 // W sprawku Phong,Gouraud i wektor normalny
