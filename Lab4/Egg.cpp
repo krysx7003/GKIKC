@@ -68,7 +68,7 @@ void Egg::initMaterial(){
     float mat_ambient[4] = {0.3f, 0.3f, 0.3f, 1.0f};
 	float mat_diffuse[4] = {0.6f, 0.3f, 0.3f, 1.0f};
 	float mat_specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    float mat_shininess = 100.0f;
+    float mat_shininess = 10.0f;
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
