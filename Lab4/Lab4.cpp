@@ -81,6 +81,8 @@ void printControls(){
 	cout<<"Nalezy nacisnac i przytrzymac PPM\n";
 	cout<<"Ruch myszy w osi X - Obrot osi X\n";
 	cout<<"Ruch myszy w osi Y - Obrot osi Y\n";
+	cout<<"Ruch myszy w osi X - Obrot osi X\n";
+	cout<<"Ruch myszy w osi Y - Obrot osi Y\n";
 	cout<<"Scroll up - Przybilizenie obiektu\n";
 	cout<<"Scroll down - Oddalenie obiektu\n";
 	cout<<"Nacisnij Enter zeby kontynuowac\n"<<flush;
@@ -250,7 +252,6 @@ void normalKey(u_char key,int x,int y){
         glutIdleFunc(nullptr); 
     }
 }
-
 void mouse(int x, int y){
 	dY = y - lastY;
 	lastY = y;
@@ -306,14 +307,11 @@ void display() {
 	GLfloat lPos2[] = {light2RotationX,light2RotationY,light2RotationZ,1};
 	GLfloat col[] = {1,0,0,1};
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	glLoadIdentity();
+	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,camOrientation,0);//Ustawienie kamery
 	light1.setPosition(lPos1);
 	light2.setPosition(lPos2);
-	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,camOrientation,0);//Ustawienie kamery
-
-	glEnable(GL_COLOR_MATERIAL);
-	
+	// glEnable(GL_COLOR_MATERIAL);
 	glRotatef(totalRotationX, 1.0f, 0.0f, 0.0f);
     glRotatef(totalRotationY, 0.0f, 1.0f, 0.0f); 
     glRotatef(totalRotationZ, 0.0f, 0.0f, 1.0f);
@@ -324,13 +322,14 @@ void display() {
 		egg.initMaterial();
 		egg.draw(eggMode);
 	}
-	
 	glutSwapBuffers();
 }	
 void Init() {
 	pix2angle = 360.0/800;
+	pix2angle = 360.0/800;
 	egg.generateMatrix();
 	glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -351,8 +350,7 @@ void Init() {
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_LIGHTING); //Włączenie oświetlenia
 	glEnable(GL_LIGHT0); //Dodanie źródła światła
-	glEnable(GL_LIGHT1);
-	
+	glEnable(GL_LIGHT1);	
 }
 // Sprawko do 15 w pon
 // W sprawku Phong,Gouraud i wektor normalny

@@ -30,7 +30,7 @@ void Light::setPosition(GLfloat lPos[]){
     light_direction[1] = -lPos[1];
     light_direction[2] = -lPos[3];
     normalize(light_direction);
-    glLightfv(lightID,GL_POSITION,lPos);
+    glLightfv(lightID,GL_POSITION,lPos);;
     glLightfv(lightID,GL_SPOT_DIRECTION,light_direction);
     glLightf(lightID, GL_SPOT_CUTOFF, 25.0f);
     glLightf(lightID, GL_SPOT_EXPONENT, 2.0f);

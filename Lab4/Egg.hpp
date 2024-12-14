@@ -10,10 +10,6 @@ struct pointsRgb{
     float r = 0.0;
     float g = 0.0;
     float b = 0.0;
-    //Parametry odbicia światła
-    float a = 0.0;
-    float d = 0.0;
-    float s = 0.0;
     //Wektor normalny
     float nx = 0.0;
     float ny = 0.0;
