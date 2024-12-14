@@ -38,7 +38,7 @@ class Egg{
     Egg(int density);
     //Methods
     void generateMatrix();
-    void generateNormalVect(int u,int v);
+    point generateNormalVect(int u,int v);
     void draw(int model);
     //Setters
     void setDensity(int newDensity);
@@ -50,6 +50,7 @@ class Egg{
     float getColor();
     float getScale();
     float getPointSize();
+    void initMaterial();
     vector<vector<pointsRgb>> getPointsMatrix();
     //Deconstructors
     ~Egg();

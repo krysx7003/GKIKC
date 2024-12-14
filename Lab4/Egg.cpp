@@ -14,17 +14,22 @@ Egg::Egg(int density ) : density(density){
 vector<vector<pointsRgb>> Egg::getPointsMatrix(){
     return pointsMatrix;
 }
-void Egg::generateNormalVect(int u,int v){
+point Egg::generateNormalVect(int u,int v){
     float x_u = (-450*pow(u,4) + 900*pow(u,3) - 810*pow(u,2) + 360*u - 45) * cos(M_PI*v);
     float x_v = M_PI * (90*pow(u,5) - 225*pow(u,4) + 270*pow(u,3) - 180*pow(u,2) + 45*u) * sin(M_PI*v);
     float y_u = 640*pow(u,3) - 960*pow(u,2) + 320*u;
     float y_v = 0;
     float z_u = (-450*pow(u,4) + 900*pow(u,3) - 810*pow(u,2) + 360*u - 45) * sin(M_PI*v);
     float z_v = -M_PI * (90*pow(u,5) - 225*pow(u,4) + 270*pow(u,3) - 180*pow(u,2) + 45*u) * cos(M_PI*v);
-    y_u * z_v - z_u * y_v;
-    z_u * x_v - x_u * z_v;
-    x_u * y_v - y_v * x_v;
-    //TODO - Trzeba znormalizować
+    point newPoint;
+    newPoint.x = y_u * z_v - z_u * y_v;
+    newPoint.y = z_u * x_v - x_u * z_v;
+    newPoint.z = x_u * y_v - y_u * x_v;
+    float length = sqrt(newPoint.x*newPoint.x + newPoint.y*newPoint.y + newPoint.z*newPoint.z);
+    newPoint.x /= length;
+    newPoint.y /= length;
+    newPoint.z /= length;
+    return newPoint;
 }
 void Egg::generateMatrix(){	
     for(int u=0;u<(density);u++){
@@ -32,15 +37,14 @@ void Egg::generateMatrix(){
         _u *= u;
         if(u==density-1){
             pointsMatrix[u][0].y = scale*((160*pow(_u,4)) - (320*pow(_u,3)) + (160 * pow(_u,2)) - 5);
-            if(color){
-                pointsMatrix[u][0].r = randFloat();
-                pointsMatrix[u][0].g = randFloat();
-                pointsMatrix[u][0].b = randFloat();
-            }else{
-                pointsMatrix[u][0].r = 0.0f;
-                pointsMatrix[u][0].g = 0.0f;
-                pointsMatrix[u][0].b = 0.0f;
-            }
+            //Białe jajko
+            pointsMatrix[u][0].r = 1.0f;
+            pointsMatrix[u][0].g = 1.0f;
+            pointsMatrix[u][0].b = 1.0f;
+            point newPoint = generateNormalVect(u,0);
+            pointsMatrix[u][0].nx = newPoint.x;
+            pointsMatrix[u][0].ny = newPoint.y;
+            pointsMatrix[u][0].nz = newPoint.z;
             break;
         }
         for(int v=0;v<density;v++){
@@ -49,17 +53,26 @@ void Egg::generateMatrix(){
             pointsMatrix[u][v].x = scale*((-90*pow(_u,5) + 225*pow(_u,4) - 270*pow(_u,3) + 180*pow(_u,2) - 45*_u) * cos(M_PI*_v));
             pointsMatrix[u][v].y = scale*(160*pow(_u,4) - 320*pow(_u,3) + 160 * pow(_u,2) - 5);
             pointsMatrix[u][v].z = scale*((-90*pow(_u,5) + 225*pow(_u,4) - 270*pow(_u,3) + 180*pow(_u,2) - 45*_u) * sin(M_PI*_v));
-            if(color){
-                pointsMatrix[u][v].r = randFloat();
-                pointsMatrix[u][v].g = randFloat();
-                pointsMatrix[u][v].b = randFloat();
-            }else{
-                pointsMatrix[u][v].r = 0.0f;
-                pointsMatrix[u][v].g = 0.0f;
-                pointsMatrix[u][v].b = 0.0f;
-            }
+            //Białe jajko
+            pointsMatrix[u][v].r = 1.0f;
+            pointsMatrix[u][v].g = 1.0f;
+            pointsMatrix[u][v].b = 1.0f;
+            point newPoint = generateNormalVect(u,v);
+            pointsMatrix[u][v].nx = newPoint.x;
+            pointsMatrix[u][v].ny = newPoint.y;
+            pointsMatrix[u][v].nz = newPoint.z;
         }
     }
+}
+void Egg::initMaterial(){
+    float mat_ambient[4] = {0.3f, 0.3f, 0.3f, 1.0f};
+	float mat_diffuse[4] = {0.6f, 0.3f, 0.3f, 1.0f};
+	float mat_specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float mat_shininess = 10.0f;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 }
 void Egg::draw(int model){
     switch (model)
@@ -152,17 +165,27 @@ void Egg::draw(int model){
             }
             for(int v=0;v<density;v++){
                 int nextV = (v + 1) % density;
+                glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
                 glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
                 glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
+
+                glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
                 glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
                 glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);
+
+                glNormal3f(pointsMatrix[u+1][v].nx,pointsMatrix[u+1][v].ny,pointsMatrix[u+1][v].nz);
                 glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
                 glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
                 
+                glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
                 glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
                 glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);	
+
+                glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
                 glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
                 glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
+
+                glNormal3f(pointsMatrix[u][nextV].nx,pointsMatrix[u][nextV].ny,pointsMatrix[u][nextV].nz);
                 glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
                 glVertex3f(pointsMatrix[u][nextV].x, pointsMatrix[u][nextV].y, pointsMatrix[u][nextV].z);
             }

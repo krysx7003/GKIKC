@@ -21,11 +21,18 @@ add_executable(Lab3
 add_executable(Lab4
         Lab4/Lab4.cpp
         Lab4/Egg.cpp
+        Lab4/Light.cpp
+        )
+add_executable(Lab5
+        Lab5/Lab5.cpp
+        Lab5/Egg.cpp
+        Lab5/Light.cpp
         )
 target_link_libraries(Lab1 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})
 target_link_libraries(Lab2 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})
 target_link_libraries(Lab3 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})
 target_link_libraries(Lab4 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})
+target_link_libraries(Lab5 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})
 
 target_compile_options(Lab1 PRIVATE
         -O3
@@ -40,6 +47,10 @@ target_compile_options(Lab3 PRIVATE
         -march=x86-64
 )
 target_compile_options(Lab4 PRIVATE
+        -O3
+        -march=x86-64
+)
+target_compile_options(Lab5 PRIVATE
         -O3
         -march=x86-64
 )
