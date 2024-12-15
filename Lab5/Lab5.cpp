@@ -32,7 +32,7 @@ unsigned char *texture1;
 unsigned char *texture2;
 unsigned char *texture3;
 
-Egg egg(200);
+Egg egg(100);
 void toggleFocusToConsole() {
 	ShowWindow(glutWindow, SW_HIDE);  
     ShowWindow(consoleWindow, SW_SHOWNORMAL);  
@@ -70,6 +70,7 @@ void printControls(){
 	cin.get();
 }
 void axis(){
+	glDisable(GL_LIGHTING);
 	glBegin(GL_LINES);
 
     glColor3f(1.0, 0.0, 0.0);
@@ -85,6 +86,7 @@ void axis(){
     glVertex3f(0.0, 0.0, 5.0);
 
     glEnd();
+	glEnable(GL_LIGHTING);
 }
 void printOptions();
 void menu();
@@ -236,18 +238,16 @@ void display() {
 	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);//Ustawienie kamery
 	light1.setPosition(lPos1);
 	glEnable(GL_COLOR_MATERIAL);
-	
+	axis();
 	glRotatef(totalRotationX, 1.0f, 0.0f, 0.0f);
     glRotatef(totalRotationY, 0.0f, 1.0f, 0.0f); 
     glRotatef(totalRotationZ, 0.0f, 0.0f, 1.0f);
 	
-	axis();
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	if(drawTeapot){
 		glColor3f(1.0, 1.0, 1.0); 
 		glutSolidTeapot(1);
 	}else{
-		egg.initMaterial();
 		egg.draw();
 	}
 	glutSwapBuffers();

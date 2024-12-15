@@ -4,7 +4,7 @@ using namespace std;
 class Light{
     
     //Kolor ustawić raz
-	float light_ambient[4] = {0.1f, 0.1f, 0.1f, 1.0f};
+	float light_ambient[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	float light_diffuse[4] = {0.7f, 0.7f, 0.7f, 1.0f};
 	float light_specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	float att_constant = 1.0;

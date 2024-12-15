@@ -73,10 +73,10 @@ string bool_to_string(bool convert){
 }
 void printControls(){
 	cout<<"==============================\n";
-	cout<<"F1 - tryb obrotu obiektu";
-	cout<<"F2 - tryb obrotu kamery";
-	cout<<"F3 - tryb obrotu swiatlem 1 (Czerwone)";
-	cout<<"F4 - tryb obrotu swiatlem 2 (Zielone)";
+	cout<<"F1 - tryb obrotu obiektu\n";
+	cout<<"F2 - tryb obrotu kamery\n";
+	cout<<"F3 - tryb obrotu swiatlem 1 (Czerwone)\n";
+	cout<<"F4 - tryb obrotu swiatlem 2 (Zielone)\n";
 	cout<<"ESC - Powrot do menu (okno konsolowe)\n";
 	cout<<"Nalezy nacisnac i przytrzymac PPM\n";
 	cout<<"Ruch myszy w osi X - Obrot osi X\n";
@@ -90,6 +90,7 @@ void printControls(){
 	cin.get();
 }
 void axis(){
+	glDisable(GL_LIGHTING);
 	glBegin(GL_LINES);
 
     glColor3f(1.0, 0.0, 0.0);
@@ -105,6 +106,7 @@ void axis(){
     glVertex3f(0.0, 0.0, 5.0);
 
     glEnd();
+	glEnable(GL_LIGHTING);
 }
 void printOptions();
 void menu();
@@ -312,10 +314,10 @@ void display() {
 	light1.setPosition(lPos1);
 	light2.setPosition(lPos2);
 	// glEnable(GL_COLOR_MATERIAL);
+	axis();
 	glRotatef(totalRotationX, 1.0f, 0.0f, 0.0f);
     glRotatef(totalRotationY, 0.0f, 1.0f, 0.0f); 
     glRotatef(totalRotationZ, 0.0f, 0.0f, 1.0f);
-	axis();
 	if(drawTeapot){ 
 		glutSolidTeapot(1);
 	}else{

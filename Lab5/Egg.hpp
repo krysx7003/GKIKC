@@ -15,8 +15,8 @@ struct pointsRgb{
     float ny = 0.0;
     float nz = 0.0;
     //U i v tekstur
-    int u = 0;
-    int v = 0;
+    float u = 0;
+    float v = 0;
 };
 struct point{
     float x = 0.0;

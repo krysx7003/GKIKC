@@ -1,5 +1,6 @@
 #include <math.h>
 #include <GL/glu.h>
+#include <iostream>
 #define FREEGLUT_STATIC
 #include <GL/freeglut.h>
 #include "Egg.hpp"
@@ -50,8 +51,8 @@ void Egg::generateMatrix(){
             pointsMatrix[u][0].nx = newPoint.x;
             pointsMatrix[u][0].ny = newPoint.y;
             pointsMatrix[u][0].nz = newPoint.z;
-            pointsMatrix[u][0].u = (u/(density-1))*height;
-            pointsMatrix[u][0].v = width;
+            pointsMatrix[u][0].u = (u/(density-1));
+            pointsMatrix[u][0].v = 0;
             break;
         }
         for(int v=0;v<density;v++){
@@ -68,8 +69,9 @@ void Egg::generateMatrix(){
             pointsMatrix[u][v].nx = newPoint.x;
             pointsMatrix[u][v].ny = newPoint.y;
             pointsMatrix[u][v].nz = newPoint.z;
-            pointsMatrix[u][v].u = (u/(density-1))*height;
-            pointsMatrix[u][v].v = (v/(density-1))*width;
+            pointsMatrix[u][v].u = ((float)u/(density-1));
+            pointsMatrix[u][v].v = ((float)v/(density-1));
+            cout<<"u: "<<pointsMatrix[u][v].u<<"v: "<<pointsMatrix[u][v].v<<"\n";
         }
     }
 }
@@ -90,18 +92,18 @@ void Egg::draw(){
         if(u==0){
             for(int v=0;v<density;v++){
                 int nextV = (v + 1) % density;
-                glTexCoord2f(pointsMatrix[u][0].u,pointsMatrix[u][0].v);
-                glNormal3f(pointsMatrix[u][0].nx,pointsMatrix[u][0].ny,pointsMatrix[u][0].nz);
-                glColor3f(pointsMatrix[u][0].r,pointsMatrix[u][0].g,pointsMatrix[u][0].b);
-                glVertex3f(pointsMatrix[u][0].x,pointsMatrix[u][0].y,pointsMatrix[u][0].z);
-                glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
-                glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
+                // glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
                 glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
                 glVertex3f(pointsMatrix[u+1][nextV].x,pointsMatrix[u+1][nextV].y,pointsMatrix[u+1][nextV].z);
                 glTexCoord2f(pointsMatrix[u+1][v].u,pointsMatrix[u+1][v].v);
-                glNormal3f(pointsMatrix[u+1][v].nx,pointsMatrix[u+1][v].ny,pointsMatrix[u+1][v].nz);
+                // glNormal3f(pointsMatrix[u+1][v].nx,pointsMatrix[u+1][v].ny,pointsMatrix[u+1][v].nz);
                 glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
                 glVertex3f(pointsMatrix[u+1][v].x,pointsMatrix[u+1][v].y,pointsMatrix[u+1][v].z);
+                glTexCoord2f(pointsMatrix[u][0].u,pointsMatrix[u][0].v);
+                //glNormal3f(pointsMatrix[u][0].nx,pointsMatrix[u][0].ny,pointsMatrix[u][0].nz);
+                glColor3f(pointsMatrix[u][0].r,pointsMatrix[u][0].g,pointsMatrix[u][0].b);
+                glVertex3f(pointsMatrix[u][0].x,pointsMatrix[u][0].y,pointsMatrix[u][0].z);
+                glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
             }
             continue;
         }
@@ -109,15 +111,15 @@ void Egg::draw(){
             for(int v=0;v<density;v++){
                 int nextV = (v + 1) % density;
                 glTexCoord2f(pointsMatrix[u+1][0].u,pointsMatrix[u+1][0].v);
-                glNormal3f(pointsMatrix[u+1][0].nx,pointsMatrix[u+1][0].ny,pointsMatrix[u+1][0].nz);
+                // glNormal3f(pointsMatrix[u+1][0].nx,pointsMatrix[u+1][0].ny,pointsMatrix[u+1][0].nz);
                 glColor3f(pointsMatrix[u+1][0].r,pointsMatrix[u+1][0].g,pointsMatrix[u+1][0].b);
                 glVertex3f(pointsMatrix[u+1][0].x,pointsMatrix[u+1][0].y,pointsMatrix[u+1][0].z);
                 glTexCoord2f(pointsMatrix[u][v].u,pointsMatrix[u][v].v);
-                glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
+                // glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
                 glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
                 glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
                 glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
-                glNormal3f(pointsMatrix[u][nextV].nx,pointsMatrix[u][nextV].ny,pointsMatrix[u][nextV].nz);
+                // glNormal3f(pointsMatrix[u][nextV].nx,pointsMatrix[u][nextV].ny,pointsMatrix[u][nextV].nz);
                 glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
                 glVertex3f(pointsMatrix[u][nextV].x,pointsMatrix[u][nextV].y,pointsMatrix[u][nextV].z);
             }
@@ -127,28 +129,28 @@ void Egg::draw(){
             int nextV = (v + 1) % density;
             //Pierwszy trójkąt
             glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
-            glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
+            // glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
             glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
             glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
             glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
-            glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
+            // glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
             glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
             glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);
             glTexCoord2f(pointsMatrix[u+1][v].u,pointsMatrix[u+1][v].v);
-            glNormal3f(pointsMatrix[u+1][v].nx,pointsMatrix[u+1][v].ny,pointsMatrix[u+1][v].nz);
+            // glNormal3f(pointsMatrix[u+1][v].nx,pointsMatrix[u+1][v].ny,pointsMatrix[u+1][v].nz);
             glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
             glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
             //Drugi trójkąt
             glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
-            glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
+            // glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
             glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
             glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);	
             glTexCoord2f(pointsMatrix[u][v].u,pointsMatrix[u][v].v);
-            glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
+            // glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
             glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
             glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
             glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
-            glNormal3f(pointsMatrix[u][nextV].nx,pointsMatrix[u][nextV].ny,pointsMatrix[u][nextV].nz);
+            // glNormal3f(pointsMatrix[u][nextV].nx,pointsMatrix[u][nextV].ny,pointsMatrix[u][nextV].nz);
             glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
             glVertex3f(pointsMatrix[u][nextV].x, pointsMatrix[u][nextV].y, pointsMatrix[u][nextV].z);
         }
