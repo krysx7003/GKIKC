@@ -1,0 +1,67 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{datetime}
+\usepackage{geometry}
+\usepackage{placeins}
+\usepackage{minted}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage[document]{ragged2e}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\geometry{
+ a4paper,
+ left=25mm,
+ top=25mm,
+ }
+\captionsetup{hypcap=false} 
+\newdateformat{daymonthyear}{\THEDAY .\THEMONTH .\THEYEAR}
+\title{
+  \centering
+  \includegraphics[width=\textwidth]{images/logo_PWr_kolor_poziom.png}\\
+  \fontsize{28pt}{30pt}\selectfont Sprawozdanie 6\\
+  \fontsize{14pt}{30pt}\selectfont Ćwiczenie 6.Układ słoneczny}
+\author{Krzysztof Zalewa}
+\date{\daymonthyear\today}
+\renewcommand*\contentsname{Spis treści}
+\renewcommand{\figurename}{Rysunek}
+\renewcommand{\listingscaption}{Fragment kodu}
+\begin{document}
+    \maketitle
+    \pagebreak
+    \tableofcontents
+    \FloatBarrier
+    \section{Wstęp teoretyczny}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=\textwidth]{images/logo_PWr_kolor_poziom.png}
+            \caption{}
+            \label{fig:tex2}
+        \end{figure}
+        \FloatBarrier
+    \section{Zadanie laboratoryjne}
+        \subsection{Treść zadania}
+        \subsection{Opis działania programu}
+        \subsection{Kod programu}
+            \begin{frame}
+                \scriptsize
+                \inputminted[
+                    style={vs},
+                    breaklines,
+                    breakanywhere, 
+                    linenos, 
+                    tabsize=4 
+                ]{c++}{Lab6.cpp}
+                \vspace{1em}
+                \captionof{listing}{Fragment kodu z programu}
+                \label{lst:code}
+            \end{frame}
+    \section{Wnioski}
+    \section{Źródła}
+        \begin{enumerate}[label=\arabic*.]
+            \item
+        \end{enumerate}
+\end{document}

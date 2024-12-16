@@ -10,18 +10,9 @@ struct pointsRgb{
     float r = 0.0;
     float g = 0.0;
     float b = 0.0;
-    //Wektor normalny
-    float nx = 0.0;
-    float ny = 0.0;
-    float nz = 0.0;
     //U i v tekstur
     float u = 0;
     float v = 0;
-};
-struct point{
-    float x = 0.0;
-    float y = 0.0;
-    float z = 0.0;
 };
 using namespace std;
 class Egg{
@@ -38,7 +29,6 @@ class Egg{
     Egg(int density);
     //Methods
     void generateMatrix();
-    point generateNormalVect(int u,int v);
     void draw();
     //Setters
     void setDensity(int newDensity);

@@ -129,8 +129,7 @@ void menu();
 void printOptions(){
 	int density = egg.getDensity();    
     bool color = egg.getColor(); 
-    float scale = egg.getScale(); 
-    float pointSize = egg.getPointSize();
+    float scale = egg.getScale();
 	cout<<"==============================\n";
 	cout<<"1.Skala obiektow: "<<scale<<"\n";
 	cout<<"2.Ilosc punktow: "<<density<<"\n";
@@ -170,7 +169,7 @@ void menu(){
 	reset_rotation();
 	cout<<"==============================\n";
 	cout<<"1. Narysuj czajnik\n";
-	cout<<"2. Narysuj jajko (trojkaty) \n";
+	cout<<"2. Narysuj jajko\n";
 	cout<<"3. Opcje\n";
 	cout<<"4. Kontrola\n";
 	cout<<"5. Zakoncz program\n";
@@ -329,26 +328,19 @@ void Init() {
 	glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_PROJECTION);
-	// glLoadIdentity();
 	glFrustum(-1,1,-1,1,2,20);
 	glMatrixMode(GL_MODELVIEW);
-	// Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
-    glFrontFace(GL_CW);
-	// Włącza culling, czyli pomijanie tylnych ścianek
-	glEnable(GL_CULL_FACE);
-    // Ustawia pomijanie tylnych ścianek
-    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);// Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
+	glEnable(GL_CULL_FACE);// Włącza culling, czyli pomijanie tylnych ścianek  
+    glCullFace(GL_BACK);// Ustawia pomijanie tylnych ścianek
 	// Kolor stały
 	light1.setColor(1.0,1.0,1.0);
 	light1.initLight();
-	//Drugie światło
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_LIGHTING); //Włączenie oświetlenia
 	glEnable(GL_LIGHT0); //Dodanie źródła światła
-
 	glEnable(GL_TEXTURE_2D); //Włącza teksturowanie
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
 	loadTexture("../tekstura1.tga",1);
 	loadTexture("../tekstura2.tga",2);
 	loadTexture("../tekstura3.tga",3);
