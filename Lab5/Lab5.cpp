@@ -15,7 +15,8 @@ using namespace std;
 HWND consoleWindow;     
 HWND glutWindow;
 
-u_int textureID;
+u_int textureIDs[4];
+int currentTex = 0;
 GLfloat deg = 0;       
 int sx =0,sy = 0,sz = 0; 
 bool drawTeapot = true;
@@ -53,12 +54,23 @@ void reset_rotation(){
 	cameraRotationY = radius * sinf((phi*(M_PI/180.0f)));
 	cameraRotationZ = radius * sinf((theta*(M_PI/180.0f))) * cosf((phi*(M_PI/180.0f)));
 }
+void renderString(const unsigned char* string){
+	
+	glDisable(GL_LIGHTING);
+	glColor3f(1.0f, 1.0f, 1.0f); 
+ 	glRasterPos2f(0, 0);
+	while (*string) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, *string);
+        string++;
+    }
+	glEnable(GL_LIGHTING);
+}
 void printControls(){
 	cout<<"==============================\n";
-	cout<<"F1 - tryb obrotu obiektu";
-	cout<<"F2 - tryb obrotu kamery";
-	cout<<"F3 - tryb obrotu swiatlem 1 (Czerwone)";
-	cout<<"F4 - tryb obrotu swiatlem 2 (Zielone)";
+	cout<<"F1 - Tryb obrotu obiektu\n";
+	cout<<"F2 - Tryb obrotu kamery\n";
+	cout<<"F3 - Nastepna tekstura\n";
+	cout<<"F4 - Poprzednia tekstura\n";
 	cout<<"ESC - Powrot do menu (okno konsolowe)\n";
 	cout<<"Nalezy nacisnac i przytrzymac PPM\n";
 	cout<<"Ruch myszy w osi X - Obrot osi X\n";
@@ -176,6 +188,20 @@ void specialKey(int key,int x,int y){
 	case GLUT_KEY_F2:
 		moveMode = 1;
 		break;
+	//F3 - Następna tekstura
+	case GLUT_KEY_F3:
+		currentTex++;
+		if(currentTex>3){
+			currentTex = 0;
+		}
+		break;
+	//F3 - Poprzednia tekstura
+	case GLUT_KEY_F4:
+		currentTex--;
+		if(currentTex<0){
+			currentTex = 3;
+		}
+		break;
 	default:
 		break;
 	}
@@ -233,7 +259,9 @@ void mouseWheel(int button, int dir, int x, int y){
 void display() {
 	GLfloat lPos1[] = {0,0,10,1};//x,y,z,czy światło jest odległe
 	GLfloat col[] = {1,0,0,1};
+	renderString((const unsigned char*)"Test");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	glLoadIdentity();
 	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);//Ustawienie kamery
 	light1.setPosition(lPos1);
@@ -243,7 +271,7 @@ void display() {
     glRotatef(totalRotationY, 0.0f, 1.0f, 0.0f); 
     glRotatef(totalRotationZ, 0.0f, 0.0f, 1.0f);
 	
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glBindTexture(GL_TEXTURE_2D, textureIDs[currentTex]);
 	if(drawTeapot){
 		glColor3f(1.0, 1.0, 1.0); 
 		glutSolidTeapot(1);
@@ -252,7 +280,13 @@ void display() {
 	}
 	glutSwapBuffers();
 }
-void loadTexture(const char* fileName){
+void loadTexture(const char* fileName,int texID){
+	glGenTextures(1, &textureIDs[texID]);	
+    glBindTexture(GL_TEXTURE_2D, textureIDs[texID]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	int width,height,nrChannels;
 	unsigned char *data = stbi_load(fileName, &width, &height, &nrChannels, 0);
 	if (data){
@@ -268,7 +302,6 @@ void loadTexture(const char* fileName){
 }	
 void Init() {
 	pix2angle = 360.0/800;
-	
 	glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_PROJECTION);
@@ -291,22 +324,11 @@ void Init() {
 
 	glEnable(GL_TEXTURE_2D); //Włącza teksturowanie
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glGenTextures(1, &textureID);	
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	loadTexture("tekstura.tga");
-}
-// Sprawko do 15 w pon
-// Trzy tekstury
-// 1(Głęboko) Strukturalna
-// 1 Pośrednia
-// 1 Bez ustrukturyzowania
-// Bez punktów i linii
-// Jedno światło ambientowe
 
+	loadTexture("../tekstura1.tga",1);
+	loadTexture("../tekstura2.tga",2);
+	loadTexture("../tekstura3.tga",3);
+}
 int main(int argc, char** argv){
 	consoleWindow = GetConsoleWindow();
 	glutInit(&argc, argv);
@@ -323,7 +345,5 @@ int main(int argc, char** argv){
 	glutMouseWheelFunc(mouseWheel);
 	menu();
 	glutMainLoop();
-	
-	
 	return 0;
 }

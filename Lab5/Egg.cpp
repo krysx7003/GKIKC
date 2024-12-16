@@ -41,20 +41,6 @@ void Egg::generateMatrix(){
     for(int u=0;u<(density);u++){
         float _u = 0.5/((float)density-1);
         _u *= u;
-        if(u==density-1){
-            pointsMatrix[u][0].y = scale*((160*pow(_u,4)) - (320*pow(_u,3)) + (160 * pow(_u,2)) - 5);
-            //Białe jajko
-            pointsMatrix[u][0].r = 1.0f;
-            pointsMatrix[u][0].g = 1.0f;
-            pointsMatrix[u][0].b = 1.0f;
-            point newPoint = generateNormalVect(u,0);
-            pointsMatrix[u][0].nx = newPoint.x;
-            pointsMatrix[u][0].ny = newPoint.y;
-            pointsMatrix[u][0].nz = newPoint.z;
-            pointsMatrix[u][0].u = (u/(density-1));
-            pointsMatrix[u][0].v = 0;
-            break;
-        }
         for(int v=0;v<density;v++){
             float _v = v/((float)density);
             _v *= 2.0f;
@@ -69,9 +55,8 @@ void Egg::generateMatrix(){
             pointsMatrix[u][v].nx = newPoint.x;
             pointsMatrix[u][v].ny = newPoint.y;
             pointsMatrix[u][v].nz = newPoint.z;
-            pointsMatrix[u][v].u = ((float)u/(density-1));
-            pointsMatrix[u][v].v = ((float)v/(density-1));
-            cout<<"u: "<<pointsMatrix[u][v].u<<"v: "<<pointsMatrix[u][v].v<<"\n";
+            pointsMatrix[u][v].u = ((float)u/(density));
+            pointsMatrix[u][v].v = 2.0f * abs(((float)v / density) - 0.5f);
         }
     }
 }
@@ -92,34 +77,33 @@ void Egg::draw(){
         if(u==0){
             for(int v=0;v<density;v++){
                 int nextV = (v + 1) % density;
-                // glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
+                glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
                 glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
                 glVertex3f(pointsMatrix[u+1][nextV].x,pointsMatrix[u+1][nextV].y,pointsMatrix[u+1][nextV].z);
+                
                 glTexCoord2f(pointsMatrix[u+1][v].u,pointsMatrix[u+1][v].v);
-                // glNormal3f(pointsMatrix[u+1][v].nx,pointsMatrix[u+1][v].ny,pointsMatrix[u+1][v].nz);
                 glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
                 glVertex3f(pointsMatrix[u+1][v].x,pointsMatrix[u+1][v].y,pointsMatrix[u+1][v].z);
-                glTexCoord2f(pointsMatrix[u][0].u,pointsMatrix[u][0].v);
-                //glNormal3f(pointsMatrix[u][0].nx,pointsMatrix[u][0].ny,pointsMatrix[u][0].nz);
+                
+                glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
                 glColor3f(pointsMatrix[u][0].r,pointsMatrix[u][0].g,pointsMatrix[u][0].b);
                 glVertex3f(pointsMatrix[u][0].x,pointsMatrix[u][0].y,pointsMatrix[u][0].z);
-                glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
+                
             }
             continue;
         }
         if(u==density-2){
             for(int v=0;v<density;v++){
                 int nextV = (v + 1) % density;
-                glTexCoord2f(pointsMatrix[u+1][0].u,pointsMatrix[u+1][0].v);
-                // glNormal3f(pointsMatrix[u+1][0].nx,pointsMatrix[u+1][0].ny,pointsMatrix[u+1][0].nz);
+                glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
                 glColor3f(pointsMatrix[u+1][0].r,pointsMatrix[u+1][0].g,pointsMatrix[u+1][0].b);
                 glVertex3f(pointsMatrix[u+1][0].x,pointsMatrix[u+1][0].y,pointsMatrix[u+1][0].z);
+                
                 glTexCoord2f(pointsMatrix[u][v].u,pointsMatrix[u][v].v);
-                // glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
                 glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
                 glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
+                
                 glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
-                // glNormal3f(pointsMatrix[u][nextV].nx,pointsMatrix[u][nextV].ny,pointsMatrix[u][nextV].nz);
                 glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
                 glVertex3f(pointsMatrix[u][nextV].x,pointsMatrix[u][nextV].y,pointsMatrix[u][nextV].z);
             }
@@ -128,31 +112,37 @@ void Egg::draw(){
         for(int v=0;v<density;v++){
             int nextV = (v + 1) % density;
             //Pierwszy trójkąt
-            glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
-            // glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
+            glTexCoord2f(pointsMatrix[u][v].u,pointsMatrix[u][v].v);
             glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
             glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
-            glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
-            // glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
+            if(nextV!=0){
+                glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
+            }else{
+                glTexCoord2f(pointsMatrix[u+1][nextV].u,1);
+            }
             glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
             glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);
             glTexCoord2f(pointsMatrix[u+1][v].u,pointsMatrix[u+1][v].v);
-            // glNormal3f(pointsMatrix[u+1][v].nx,pointsMatrix[u+1][v].ny,pointsMatrix[u+1][v].nz);
             glColor3f(pointsMatrix[u+1][v].r,pointsMatrix[u+1][v].g,pointsMatrix[u+1][v].b);
             glVertex3f(pointsMatrix[u+1][v].x, pointsMatrix[u+1][v].y, pointsMatrix[u+1][v].z);
             //Drugi trójkąt
-            glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
-            // glNormal3f(pointsMatrix[u+1][nextV].nx,pointsMatrix[u+1][nextV].ny,pointsMatrix[u+1][nextV].nz);
+            if(nextV!=0){
+                glTexCoord2f(pointsMatrix[u+1][nextV].u,pointsMatrix[u+1][nextV].v);
+            }else{
+                glTexCoord2f(pointsMatrix[u+1][nextV].u,1);
+            }
             glColor3f(pointsMatrix[u+1][nextV].r,pointsMatrix[u+1][nextV].g,pointsMatrix[u+1][nextV].b);
             glVertex3f(pointsMatrix[u+1][nextV].x, pointsMatrix[u+1][nextV].y, pointsMatrix[u+1][nextV].z);	
             glTexCoord2f(pointsMatrix[u][v].u,pointsMatrix[u][v].v);
-            // glNormal3f(pointsMatrix[u][v].nx,pointsMatrix[u][v].ny,pointsMatrix[u][v].nz);
             glColor3f(pointsMatrix[u][v].r,pointsMatrix[u][v].g,pointsMatrix[u][v].b);
             glVertex3f(pointsMatrix[u][v].x,pointsMatrix[u][v].y,pointsMatrix[u][v].z);
-            glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
-            // glNormal3f(pointsMatrix[u][nextV].nx,pointsMatrix[u][nextV].ny,pointsMatrix[u][nextV].nz);
+            if(nextV!=0){
+                glTexCoord2f(pointsMatrix[u][nextV].u,pointsMatrix[u][nextV].v);
+            }else{
+                glTexCoord2f(pointsMatrix[u][nextV].u,1);
+            }
             glColor3f(pointsMatrix[u][nextV].r,pointsMatrix[u][nextV].g,pointsMatrix[u][nextV].b);
-            glVertex3f(pointsMatrix[u][nextV].x, pointsMatrix[u][nextV].y, pointsMatrix[u][nextV].z);
+            glVertex3f(pointsMatrix[u][nextV].x, pointsMatrix[u][nextV].y, pointsMatrix[u][nextV].z);         
         }
     }
     glEnd();
