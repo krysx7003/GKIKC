@@ -14,7 +14,8 @@
 using namespace std;
 HWND consoleWindow;     
 HWND glutWindow;
-
+const int TEXT_HEIGHT = 13;
+void *font = GLUT_BITMAP_8_BY_13;
 u_int textureIDs[4];
 int currentTex = 0;
 GLfloat deg = 0;       
@@ -29,10 +30,8 @@ float cameraRotationY = radius * sinf((phi*(M_PI/180)));
 float cameraRotationZ = radius * sinf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
 Light light1(GL_LIGHT0);
 GLfloat light1Radius = 10;
-unsigned char *texture1;
-unsigned char *texture2;
-unsigned char *texture3;
-
+string movementMode[2] = {"Obiekt","Kamera"};
+string textureName[4] = {"0 - Brak","1 - Kulki","2 - Granit","3 - Siatka"};
 Egg egg(100);
 void toggleFocusToConsole() {
 	ShowWindow(glutWindow, SW_HIDE);  
@@ -54,16 +53,41 @@ void reset_rotation(){
 	cameraRotationY = radius * sinf((phi*(M_PI/180.0f)));
 	cameraRotationZ = radius * sinf((theta*(M_PI/180.0f))) * cosf((phi*(M_PI/180.0f)));
 }
-void renderString(const unsigned char* string){
-	
-	glDisable(GL_LIGHTING);
-	glColor3f(1.0f, 1.0f, 1.0f); 
- 	glRasterPos2f(0, 0);
-	while (*string) {
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, *string);
-        string++;
+void drawString(const char *str, int x, int y, float color[4], void *font){
+    glPushAttrib(GL_LIGHTING_BIT | GL_CURRENT_BIT); 
+    glDisable(GL_LIGHTING); 
+    glDisable(GL_TEXTURE_2D);
+    glDepthFunc(GL_ALWAYS);
+    glColor4fv(color);
+    glRasterPos2i(x, y); 
+    while(*str){
+        glutBitmapCharacter(font, *str);
+        ++str;
     }
-	glEnable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_LIGHTING);
+    glDepthFunc(GL_LEQUAL);
+    glPopAttrib();	 
+}
+void showInfo(){
+	glPushMatrix();                     
+    glLoadIdentity();                   
+    glMatrixMode(GL_PROJECTION);        
+    glPushMatrix();                     
+    glLoadIdentity();                   
+    gluOrtho2D(0, 800, 0, 800);
+	float color[4] = {1, 1, 1, 1};
+	string s = "Tryb obrotu: "+movementMode[moveMode];
+	drawString(s.c_str(),2,800-TEXT_HEIGHT,color,font);
+	s = "F1 - Obiekt || F2 - Kamera";
+	drawString(s.c_str(),2,800-(2*TEXT_HEIGHT),color,font);
+	s = "Tekstura: "+textureName[currentTex];
+	drawString(s.c_str(),2,800-(3*TEXT_HEIGHT),color,font);
+	s = "F3 - Nastepna || F4 - Poprzednia";
+	drawString(s.c_str(),2,800-(4*TEXT_HEIGHT),color,font);
+	glPopMatrix();                   
+    glMatrixMode(GL_MODELVIEW);      
+    glPopMatrix(); 
 }
 void printControls(){
 	cout<<"==============================\n";
@@ -259,7 +283,6 @@ void mouseWheel(int button, int dir, int x, int y){
 void display() {
 	GLfloat lPos1[] = {0,0,10,1};//x,y,z,czy światło jest odległe
 	GLfloat col[] = {1,0,0,1};
-	renderString((const unsigned char*)"Test");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glLoadIdentity();
@@ -278,6 +301,7 @@ void display() {
 	}else{
 		egg.draw();
 	}
+	showInfo();
 	glutSwapBuffers();
 }
 void loadTexture(const char* fileName,int texID){
