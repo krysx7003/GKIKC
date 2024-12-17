@@ -316,12 +316,11 @@ void loadTexture(const char* fileName,int texID){
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	}
 	else{
-		cout << "Failed to load texture!" <<stbi_failure_reason()<< endl;
+		cout << "Failed to load texture! " <<stbi_failure_reason()<< endl;
 		system("pause");
 		exit(1);
 	}
 	stbi_image_free(data);
-	egg.setTextureSize(height,width);
 }	
 void Init() {
 	pix2angle = 360.0/800;
