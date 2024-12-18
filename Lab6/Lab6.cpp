@@ -214,8 +214,12 @@ void init(){
 			planets[i].setDistance(pos);
 			planets[i].setTilt(planetAxialTilts[i]);
 		}else{
-			
+			planets[i] = Planet(i,planetSizes[i]);
+			planets[i].setCentre(planets[2].getPosition());
+			planets[i].setDistance(planetDistances[i]);
+			planets[i].setTilt(planetAxialTilts[i]);
 		}
+
 	}
     glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

@@ -36,8 +36,8 @@ void Planet::drawOrbit(){
     glPointSize(2.0f);
     glBegin(GL_POINTS);
     glColor3f(1.0, 1.0, 1.0);
-    for(int i = 0;i<points * points;i++){
-        float theta = 2.0f * 3.1415926f * float(i) / float(points * points);
+    for(int i = 0;i<points *2;i++){
+        float theta = 2.0f * 3.1415926f * float(i) / float(points * 2);
         float x = distance * cosf(theta);
         float y = distance * sinf(theta);
         glVertex3f(x+center.x,y+center.y,0.0f);
@@ -61,6 +61,7 @@ Planet::Planet() : points(50), size(1.0f), distance(0.0f) {
 }
 void Planet::setDistance(float newDistance){
     distance = newDistance;
+    positon = {distance, 0.0f, 0.0f};
 }
 void Planet::setCentre(point newCentre){
     center = newCentre;
