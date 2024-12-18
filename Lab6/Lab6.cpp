@@ -2,17 +2,18 @@
 #include <iostream>
 #include <GL/glu.h>
 #include <vector>
-#include <math.h>
 #define FREEGLUT_STATIC
 #include <GL/freeglut.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 //My .h files
+#include "Planet.h"
+#include "Sun.h"
 
 using namespace std;
 //Constants
 const int TEXT_HEIGHT = 13;
-const int PLANET_NUM = 10;//Sun is a planet
+const int PLANET_NUM = 10;//Moon is a planet
 const int CAMERA_NUM = 2;
 //Global variables
 HWND consoleWindow;     
@@ -20,9 +21,20 @@ HWND glutWindow;
 u_int *textureIDs;
 void *font = GLUT_BITMAP_8_BY_13;
 int currentPlanet = 3;
-string planetNames[PLANET_NUM];
+Planet planets[PLANET_NUM];
+string planetNames[PLANET_NUM] = {"Mercury","Venus","Earth","Moon","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"};
+float planetSizes[PLANET_NUM] = {0.4,0.9,1.0,0.27,0.5,5.0,4.0,2.0,1.9,0.2};
+float planetDistances[PLANET_NUM] = {15.0,25.0,35.f,3.8,50.0f,120.0f,200.0f,300.0f,400.0f,500.0f};
+float planetAxialTilts[PLANET_NUM] = {0.03f,177.4f,23.5f,6.7,25.2f,3.1f,26.7f,97.8f,28.3f,122.5f};
+float planetOrbitalTilts[PLANET_NUM] ;
 int currentCamera = 0; 
-string cameraNames[CAMERA_NUM];
+string cameraNames[CAMERA_NUM] = {"Wolna","Na planecie"};
+float pix2angle = 360.0/800,theta = 0.0f,phi = 0.0f;
+int radius = 20,lastX = 0,lastY = 0;
+float cameraRotationX = radius * cosf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
+float cameraRotationY = radius * sinf((phi*(M_PI/180)));
+float cameraRotationZ = radius * sinf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
+Sun sun;
 //Window controls
 void toggleFocusToConsole() {
 	ShowWindow(glutWindow, SW_HIDE);  
@@ -59,13 +71,16 @@ void showInfo(){
     glLoadIdentity();                   
     gluOrtho2D(0, 800, 0, 800);
 	float color[4] = {1, 1, 1, 1};
-	string s = "Kamera: ";
+	string s = "Kamera: "+cameraNames[currentCamera];
 	drawString(s.c_str(),2,800-TEXT_HEIGHT,color,font);
     s = "F1 - Zmien kamere";
     drawString(s.c_str(),2,800-(2*TEXT_HEIGHT),color,font);
     s = "Planeta: "+planetNames[currentPlanet];
     drawString(s.c_str(),2,800-(3*TEXT_HEIGHT),color,font);
     s = "F2 - Poprzednia planeta || F3 Nastepna planeta || F4 - Lista Planet";
+	drawString(s.c_str(),2,800-(4*TEXT_HEIGHT),color,font);
+	s = "ESC - Wyjdz z programu";
+	drawString(s.c_str(),2,800-(5*TEXT_HEIGHT),color,font);
 	glPopMatrix();                   
     glMatrixMode(GL_MODELVIEW);      
     glPopMatrix(); 
@@ -85,7 +100,11 @@ void specialKey(int key,int x,int y){
 	switch (key){
 	//F1 - Change camera
 	case GLUT_KEY_F1:
-
+		if(currentCamera==0){
+			currentCamera = 1;
+		}else{
+			currentCamera = 0;
+		}
 		break;
 	//F2 - Prevoius planet
 	case GLUT_KEY_F2:
@@ -115,8 +134,54 @@ void specialKey(int key,int x,int y){
 	default:
 		break;
 	}
+	glutPostRedisplay();
+}
+void mouse(int x, int y){
+	float dY = y - lastY;
+	lastY = y;
+	float dX = x - lastX;
+	lastX = x;
+	theta += dX * pix2angle;
+	phi += dY * pix2angle;
+	if (phi > 89.0f) {phi = 89.0f;}
+    if (phi < -89.0f) {phi = -89.0f;}
+	switch(currentCamera){
+		case 0:
+			cameraRotationX = radius * cosf((theta*(M_PI/180.0f))) * cosf((phi*(M_PI/180.0f)));
+			cameraRotationY = radius * sinf((phi*(M_PI/180.0f)));
+			cameraRotationZ = radius * sinf((theta*(M_PI/180.0f))) * cosf((phi*(M_PI/180.0f)));
+			break;
+		case 1:
+			
+			break;
+	}
+	lastX = x;
+	lastY = y;
+	glutPostRedisplay();
+}
+void mouseWheel(int button, int dir, int x, int y){
+	if (dir > 0){
+        radius -= 1;
+    }else{
+        radius += 1;
+    }
+	if(radius<0){
+		radius=0;
+	}
+	glutPostRedisplay();
 }
 void display(){
+	GLfloat lPos[] = {0,0,0,1};
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);
+	glLightfv(GL_LIGHT0,GL_POSITION,lPos);
+	glRotatef(90.0f, 1.0f, 0.0f, 0.0f); 
+	sun.draw(0.0f);
+	for(int i = 0;i<PLANET_NUM;i++){
+		planets[i].drawOrbit();
+		planets[i].draw(i);
+	}
     showInfo();
 	glutSwapBuffers();
 }
@@ -140,12 +205,24 @@ void loadTexture(const char* fileName,int texID){
 	stbi_image_free(data);
 }	
 void init(){
+	sun = Sun(GL_LIGHT0,0,10);
+	float pos = 10;
+	for(int i = 0;i<PLANET_NUM;i++){
+		if(i!=3){
+			planets[i] = Planet(i,planetSizes[i]);
+			pos += planetDistances[i];
+			planets[i].setDistance(pos);
+			planets[i].setTilt(planetAxialTilts[i]);
+		}else{
+			
+		}
+	}
     glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_PROJECTION);
-	glFrustum(-1,1,-1,1,2,20);
+	gluPerspective(45,1,0.01,5000);
 	glMatrixMode(GL_MODELVIEW);
-    glFrontFace(GL_CW);// Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
+    glFrontFace(GL_CCW);// Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
 	glEnable(GL_CULL_FACE);// Włącza culling, czyli pomijanie tylnych ścianek  
     glCullFace(GL_BACK);// Ustawia pomijanie tylnych ścianek
 
@@ -178,9 +255,9 @@ int main(int argc, char** argv){
 	glutDisplayFunc(display);
     glutKeyboardFunc(normalKey);
     glutSpecialFunc(specialKey);
+	glutMotionFunc(mouse);
+	glutMouseWheelFunc(mouseWheel);
 	glutIdleFunc(nullptr);
 	glutMainLoop();
-    
-    
 	return 0;
 }

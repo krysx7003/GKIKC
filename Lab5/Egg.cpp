@@ -3,7 +3,7 @@
 #include <iostream>
 #define FREEGLUT_STATIC
 #include <GL/freeglut.h>
-#include "Egg.hpp"
+#include "Egg.h"
 using namespace std;
 
 float Egg::randFloat(){
@@ -14,6 +14,28 @@ Egg::Egg(int density ) : density(density){
 }
 vector<vector<pointsRgb>> Egg::getPointsMatrix(){
     return pointsMatrix;
+}
+point Egg::generateNormalVect(int u,int v){
+    float x_u = (-450*pow(u,4) + 900*pow(u,3) - 810*pow(u,2) + 360*u - 45) * cos(M_PI*v);
+    float x_v = M_PI * (90*pow(u,5) - 225*pow(u,4) + 270*pow(u,3) - 180*pow(u,2) + 45*u) * sin(M_PI*v);
+    float y_u = 640*pow(u,3) - 960*pow(u,2) + 320*u;
+    float y_v = 0;
+    float z_u = (-450*pow(u,4) + 900*pow(u,3) - 810*pow(u,2) + 360*u - 45) * sin(M_PI*v);
+    float z_v = -M_PI * (90*pow(u,5) - 225*pow(u,4) + 270*pow(u,3) - 180*pow(u,2) + 45*u) * cos(M_PI*v);
+    point newPoint;
+    newPoint.x = y_u * z_v - z_u * y_v;
+    newPoint.y = z_u * x_v - x_u * z_v;
+    newPoint.z = x_u * y_v - y_u * x_v;
+    float length = sqrt(newPoint.x*newPoint.x + newPoint.y*newPoint.y + newPoint.z*newPoint.z);
+    newPoint.x /= length;
+    newPoint.y /= length;
+    newPoint.z /= length;
+    return newPoint;
+}
+void Egg::setTextureSize(int newHeight,int newWidth){
+    height = newHeight;
+    width = newWidth;
+    generateMatrix();
 }
 void Egg::generateMatrix(){	
     for(int u=0;u<(density);u++){
@@ -29,10 +51,24 @@ void Egg::generateMatrix(){
             pointsMatrix[u][v].r = 1.0f;
             pointsMatrix[u][v].g = 1.0f;
             pointsMatrix[u][v].b = 1.0f;
+            point newPoint = generateNormalVect(u,v);
+            pointsMatrix[u][v].nx = newPoint.x;
+            pointsMatrix[u][v].ny = newPoint.y;
+            pointsMatrix[u][v].nz = newPoint.z;
             pointsMatrix[u][v].u = ((float)u/(density));
             pointsMatrix[u][v].v = 2.0f * abs(((float)v / density) - 0.5f);
         }
     }
+}
+void Egg::initMaterial(){
+    float mat_ambient[4] = {0.3f, 0.3f, 0.3f, 1.0f};
+	float mat_diffuse[4] = {0.6f, 0.3f, 0.3f, 1.0f};
+	float mat_specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float mat_shininess = 10.0f;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 }
 void Egg::draw(){
     glBegin(GL_TRIANGLES);

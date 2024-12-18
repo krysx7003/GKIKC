@@ -30,6 +30,8 @@ add_executable(Lab5
         )
 add_executable(Lab6
         Lab6/Lab6.cpp
+        Lab6/Planet.cpp
+        Lab6/Sun.cpp
         )
 target_link_libraries(Lab1 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})
 target_link_libraries(Lab2 PRIVATE ${FREEGLUT_LIBRARIES} ${GLU_LIBRARIES})

@@ -9,7 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "Egg.hpp"
+#include "Egg.h"
 #include "Light.hpp"
 using namespace std;
 HWND consoleWindow;     
@@ -129,7 +129,8 @@ void menu();
 void printOptions(){
 	int density = egg.getDensity();    
     bool color = egg.getColor(); 
-    float scale = egg.getScale();
+    float scale = egg.getScale(); 
+    float pointSize = egg.getPointSize();
 	cout<<"==============================\n";
 	cout<<"1.Skala obiektow: "<<scale<<"\n";
 	cout<<"2.Ilosc punktow: "<<density<<"\n";
@@ -274,8 +275,8 @@ void mouseWheel(int button, int dir, int x, int y){
     }else{
         radius += 1;
     }
-	if(radius<=1){
-		radius=1;
+	if(radius<0){
+		radius=0;
 	}
 	glutPostRedisplay();
 }
@@ -316,33 +317,41 @@ void loadTexture(const char* fileName,int texID){
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	}
 	else{
-		cout << "Failed to load texture! " <<stbi_failure_reason()<< endl;
+		cout << "Failed to load texture!" <<stbi_failure_reason()<< endl;
 		system("pause");
 		exit(1);
 	}
 	stbi_image_free(data);
+	egg.setTextureSize(height,width);
 }	
 void Init() {
 	pix2angle = 360.0/800;
 	glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_PROJECTION);
+	// glLoadIdentity();
 	glFrustum(-1,1,-1,1,2,20);
 	glMatrixMode(GL_MODELVIEW);
-    glFrontFace(GL_CW);// Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
-	glEnable(GL_CULL_FACE);// Włącza culling, czyli pomijanie tylnych ścianek  
-    glCullFace(GL_BACK);// Ustawia pomijanie tylnych ścianek
+	// Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
+    glFrontFace(GL_CW);
+	// Włącza culling, czyli pomijanie tylnych ścianek
+	glEnable(GL_CULL_FACE);
+    // Ustawia pomijanie tylnych ścianek
+    glCullFace(GL_BACK);
 	// Kolor stały
 	light1.setColor(1.0,1.0,1.0);
 	light1.initLight();
+	//Drugie światło
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_LIGHTING); //Włączenie oświetlenia
 	glEnable(GL_LIGHT0); //Dodanie źródła światła
+
 	glEnable(GL_TEXTURE_2D); //Włącza teksturowanie
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	loadTexture("../tekstura1.tga",1);
-	loadTexture("../tekstura2.tga",2);
-	loadTexture("../tekstura3.tga",3);
+
+	loadTexture("tekstura1.tga",1);
+	loadTexture("tekstura2.tga",2);
+	loadTexture("tekstura3.tga",3);
 }
 int main(int argc, char** argv){
 	consoleWindow = GetConsoleWindow();
