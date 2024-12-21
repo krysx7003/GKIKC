@@ -18,16 +18,21 @@ void Planet::axis(){
     glEnd();
 	glEnable(GL_LIGHTING);
 }
+void Planet::animateSpin(){
+    spin += 0.5f;
+    if (spin > 360.0f) {
+        spin -= 360.0f;
+    }
+}
 void Planet::draw(u_int texture){
     glPushMatrix();
-
     glColor3f(1.0, 1.0, 1.0);
-    glTranslatef(distance, 0.0f, 0.0f); 
+    glTranslatef(center.x + distance, 0.0f, 0.0f); 
     positon = {distance, 0.0f, 0.0f};
     glRotatef(tilt, 1.0f, 0.0f, 0.0f);
+    glRotatef(spin, 0.0f, 1.0f, 0.0f);
     axis();
     glutSolidSphere(size,points,points);
-
     glPopMatrix();
 }
 void Planet::drawOrbit(){
@@ -40,7 +45,7 @@ void Planet::drawOrbit(){
         float theta = 2.0f * 3.1415926f * float(i) / float(points * 2);
         float x = distance * cosf(theta);
         float y = distance * sinf(theta);
-        glVertex3f(x+center.x,y+center.y,0.0f);
+        glVertex3f(x+center.x,0.0f,y+center.y);
     }
     glEnd();
     glEnable(GL_LIGHTING);
@@ -56,9 +61,7 @@ Planet::Planet(float newDistance,float newSize){
     distance = newDistance;
     size = newSize;
 }
-Planet::Planet() : points(50), size(1.0f), distance(0.0f) {
-    
-}
+Planet::Planet() : points(50), size(1.0f), distance(0.0f) {}
 void Planet::setDistance(float newDistance){
     distance = newDistance;
     positon = {distance, 0.0f, 0.0f};

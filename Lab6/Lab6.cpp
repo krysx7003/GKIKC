@@ -18,7 +18,7 @@ const int CAMERA_NUM = 2;
 //Global variables
 HWND consoleWindow;     
 HWND glutWindow;
-u_int *textureIDs;
+u_int textureIDs[PLANET_NUM];
 void *font = GLUT_BITMAP_8_BY_13;
 int currentPlanet = 3;
 Planet planets[PLANET_NUM];
@@ -26,11 +26,11 @@ string planetNames[PLANET_NUM] = {"Mercury","Venus","Earth","Moon","Mars","Jupit
 float planetSizes[PLANET_NUM] = {0.4,0.9,1.0,0.27,0.5,5.0,4.0,2.0,1.9,0.2};
 float planetDistances[PLANET_NUM] = {15.0,25.0,35.f,3.8,50.0f,120.0f,200.0f,300.0f,400.0f,500.0f};
 float planetAxialTilts[PLANET_NUM] = {0.03f,177.4f,23.5f,6.7,25.2f,3.1f,26.7f,97.8f,28.3f,122.5f};
-float planetOrbitalTilts[PLANET_NUM] ;
+float planetOrbitalTilts[PLANET_NUM] = {7.0,3.39,0.0,5.1,1.85,1.31,2.49,0.77,1.77,17.16} ;
 int currentCamera = 0; 
 string cameraNames[CAMERA_NUM] = {"Wolna","Na planecie"};
 float pix2angle = 360.0/800,theta = 0.0f,phi = 0.0f;
-int radius = 20,lastX = 0,lastY = 0;
+int radius = 35,lastX = 0,lastY = 0;
 float cameraRotationX = radius * cosf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
 float cameraRotationY = radius * sinf((phi*(M_PI/180)));
 float cameraRotationZ = radius * sinf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
@@ -161,12 +161,18 @@ void mouse(int x, int y){
 }
 void mouseWheel(int button, int dir, int x, int y){
 	if (dir > 0){
-        radius -= 1;
+        radius -= 10;
     }else{
-        radius += 1;
+        radius += 10;
     }
-	if(radius<0){
-		radius=0;
+	if(radius<20){
+		radius=20;
+	}
+	glutPostRedisplay();
+}
+void animate(){
+	for(int i = 0;i<PLANET_NUM;i++){
+		planets[i].animateSpin();
 	}
 	glutPostRedisplay();
 }
@@ -176,17 +182,19 @@ void display(){
 	glLoadIdentity();
 	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);
 	glLightfv(GL_LIGHT0,GL_POSITION,lPos);
-	glRotatef(90.0f, 1.0f, 0.0f, 0.0f); 
+	// glRotatef(90.0f, 1.0f, 0.0f, 0.0f); 
 	sun.draw(0.0f);
 	for(int i = 0;i<PLANET_NUM;i++){
+		glPushMatrix();
+		glRotatef(planetOrbitalTilts[i], 1.0f, 0.0f, 0.0f);
 		planets[i].drawOrbit();
 		planets[i].draw(i);
+		glPopMatrix();
 	}
     showInfo();
 	glutSwapBuffers();
 }
-void loadTexture(const char* fileName,int texID){
-	glGenTextures(1, &textureIDs[texID]);	
+void loadTexture(const char* fileName,int texID){		
     glBindTexture(GL_TEXTURE_2D, textureIDs[texID]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -235,6 +243,7 @@ void init(){
 	glEnable(GL_LIGHT0); //Dodanie źródła światła
 	glEnable(GL_TEXTURE_2D); //Włącza teksturowanie
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glGenTextures(10,textureIDs);
 }
 //Na 7 stycznia
 //Kule oteksturowane
@@ -261,7 +270,7 @@ int main(int argc, char** argv){
     glutSpecialFunc(specialKey);
 	glutMotionFunc(mouse);
 	glutMouseWheelFunc(mouseWheel);
-	glutIdleFunc(nullptr);
+	glutIdleFunc(animate);
 	glutMainLoop();
 	return 0;
 }

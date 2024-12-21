@@ -8,13 +8,14 @@ struct point{
 class Planet{
     protected:
     int points = 50;
-    float size  = 1;
+    float size  = 1,spin = 0;
     float distance = 0.0f;
     float tilt = 0.0f;
     point positon;
     point center = {0,0,0};
     void axis();
     public:
+    void animateSpin();
     void draw(u_int texture);
     void setTilt(float degree);
     void rotateYAxis(float speed);
