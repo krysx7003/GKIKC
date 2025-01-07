@@ -14,6 +14,7 @@ using namespace std;
 //Constants
 const int TEXT_HEIGHT = 13;
 const int PLANET_NUM = 10;//Moon is a planet
+const int ALL = 11;
 const int CAMERA_NUM = 2;
 //Global variables
 HWND consoleWindow;     
@@ -23,9 +24,14 @@ void *font = GLUT_BITMAP_8_BY_13;
 int currentPlanet = 3;
 Planet planets[PLANET_NUM];
 string planetNames[PLANET_NUM] = {"Mercury","Venus","Earth","Moon","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"};
-float planetSizes[PLANET_NUM] = {0.4,0.9,1.0,0.27,0.5,5.0,4.0,2.0,1.9,0.2};
-float planetDistances[PLANET_NUM] = {15.0,25.0,35.f,3.8,50.0f,120.0f,200.0f,300.0f,400.0f,500.0f};
+const char* fileNames[ALL] = {"textures\\2k_sun.png","textures\\2k_mercury.png","textures\\2k_venus_surface.png","textures\\2k_earth_daymap.png",
+	"textures\\2k_moon.png","textures\\2k_mars.png","textures\\2k_jupiter.png","textures\\preview_saturn.png","textures\\2k_uranus.png",
+	"textures\\2k_neptune.png","textures\\plutomapthumb.png",};
+float planetSizes[PLANET_NUM] = {2,6.5,7,2,6.5,14,10,8,8,5};
+float planetDistances[PLANET_NUM] = {15.0,25.0,35,13,50.0f,70.0f,80.0f,90.0f,100.0f,110.0f};
 float planetAxialTilts[PLANET_NUM] = {0.03f,177.4f,23.5f,6.7,25.2f,3.1f,26.7f,97.8f,28.3f,122.5f};
+float xAxis[PLANET_NUM] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+float yAxis[PLANET_NUM] = {1.3f, 1.3f, 1.2f, 1.0f, 1.21f, 1.25f, 1.15f, 1.25f, 1.2f, 1.4f};
 float planetOrbitalTilts[PLANET_NUM] = {7.0,3.39,0.0,5.1,1.85,1.31,2.49,0.77,1.77,17.16} ;
 int currentCamera = 0; 
 string cameraNames[CAMERA_NUM] = {"Wolna","Na planecie"};
@@ -34,6 +40,7 @@ int radius = 35,lastX = 0,lastY = 0;
 float cameraRotationX = radius * cosf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
 float cameraRotationY = radius * sinf((phi*(M_PI/180)));
 float cameraRotationZ = radius * sinf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
+float cameraX = 0,cameraY = 0;
 Sun sun;
 //Window controls
 void toggleFocusToConsole() {
@@ -87,8 +94,32 @@ void showInfo(){
 }
 //Keyboard control
 void normalKey(u_char key,int x,int y){
-	switch (key)
-	{
+	float moveSpeed = 10.0f;
+	switch (key){
+	case 'W':
+	case 'w':
+		if(currentCamera == 0){
+			cameraY += 10.0f;
+		}	
+		break;
+	case 'A':
+	case 'a':
+		if(currentCamera == 0){
+			cameraX += 10.0f;
+		}
+		break;
+	case 'S':
+	case 's':
+		if(currentCamera == 0){
+			cameraY -= 10.0f;
+		}
+		break;
+	case 'D':
+	case 'd':
+		if(currentCamera == 0){
+			cameraX -= 10.0f;
+		}
+		break;
 	case 27:
 		exit(0);
 		break;
@@ -108,14 +139,18 @@ void specialKey(int key,int x,int y){
 		break;
 	//F2 - Prevoius planet
 	case GLUT_KEY_F2:
+		planets[currentPlanet].setCamera();
         currentPlanet--;
+		planets[currentPlanet].setCamera();
         if(currentPlanet == 0){
             currentPlanet = PLANET_NUM-1;
         }
 		break;
 	//F3 - Next planet
 	case GLUT_KEY_F3:
+		planets[currentPlanet].setCamera();
         currentPlanet++;
+		planets[currentPlanet].setCamera();
         if(currentPlanet == PLANET_NUM){
             currentPlanet = 1;
         }
@@ -170,31 +205,54 @@ void mouseWheel(int button, int dir, int x, int y){
 	}
 	glutPostRedisplay();
 }
+void timer(int value) {
+    glutPostRedisplay();
+    glutTimerFunc(16, timer, 0);  
+}
 void animate(){
 	for(int i = 0;i<PLANET_NUM;i++){
 		planets[i].animateSpin();
+		planets[i].move(0.1f);
 	}
+	planets[2].animateSpinMoon();
+	planets[2].moveMoon(0.1f);
 	glutPostRedisplay();
+}
+void drawTexturedSquare(GLint textureID) {
+    glEnable(GL_TEXTURE_2D);                  // Enable texturing
+    glBindTexture(GL_TEXTURE_2D, textureID); // Bind the texture
+
+	glColor3f(1.0, 1.0, 1.0); 
+	glutSolidTeapot(1);
+
+    glDisable(GL_TEXTURE_2D); // Disable texturing
 }
 void display(){
 	GLfloat lPos[] = {0,0,0,1};
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);
-	glLightfv(GL_LIGHT0,GL_POSITION,lPos);
-	// glRotatef(90.0f, 1.0f, 0.0f, 0.0f); 
-	sun.draw(0.0f);
-	for(int i = 0;i<PLANET_NUM;i++){
-		glPushMatrix();
-		glRotatef(planetOrbitalTilts[i], 1.0f, 0.0f, 0.0f);
-		planets[i].drawOrbit();
-		planets[i].draw(i);
-		glPopMatrix();
+	glTranslatef(-cameraX,0.0f,-cameraY);
+	if(currentCamera==0){
+		gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);
+	}else{
+		planets[currentPlanet].setCamera();
 	}
+	glLightfv(GL_LIGHT0,GL_POSITION,lPos);
+	drawTexturedSquare(textureIDs[0]);
+	// sun.draw(textureIDs[0]);
+	// for(int i = 0;i<PLANET_NUM;i++){
+	// 	if(i!=3){
+	// 		glPushMatrix();
+	// 		glRotatef(planetOrbitalTilts[i], 1.0f, 0.0f, 0.0f);
+	// 		planets[i].drawOrbit();
+	// 		planets[i].draw(textureIDs[i+1]);
+	// 		glPopMatrix();
+	// 	}
+	// }
     showInfo();
 	glutSwapBuffers();
 }
-void loadTexture(const char* fileName,int texID){		
+void loadTexture(const char* fileName,int texID){	
     glBindTexture(GL_TEXTURE_2D, textureIDs[texID]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -204,59 +262,58 @@ void loadTexture(const char* fileName,int texID){
 	unsigned char *data = stbi_load(fileName, &width, &height, &nrChannels, 0);
 	if (data){
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		cout << "Texture loaded successfully: " << fileName << endl;
 	}
 	else{
-		cout << "Failed to load texture! " <<stbi_failure_reason()<< endl;
+		cout << "Failed to load texture! "<< fileName <<" " <<stbi_failure_reason()<< endl;
 		system("pause");
 		exit(1);
 	}
 	stbi_image_free(data);
 }	
 void init(){
-	sun = Sun(GL_LIGHT0,0,10);
+	sun = Sun(GL_LIGHT0,0,16);
 	float pos = 10;
 	for(int i = 0;i<PLANET_NUM;i++){
 		if(i!=3){
 			planets[i] = Planet(i,planetSizes[i]);
 			pos += planetDistances[i];
 			planets[i].setDistance(pos);
-			planets[i].setTilt(planetAxialTilts[i]);
-		}else{
-			planets[i] = Planet(i,planetSizes[i]);
-			planets[i].setCentre(planets[2].getPosition());
-			planets[i].setDistance(planetDistances[i]);
+			planets[i].setElipse(xAxis[i],yAxis[i]);
 			planets[i].setTilt(planetAxialTilts[i]);
 		}
-
 	}
+	moon newMoon = {
+		25,planetSizes[3],0,planetDistances[3],planets[2].getPosition(),planetAxialTilts[3]
+	};
+	planets[2].addMoon(newMoon);
     glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(45,1,0.01,5000);
 	glMatrixMode(GL_MODELVIEW);
-    glFrontFace(GL_CCW);// Ustawia kierunek frontowych ścianek jako przeciwny do ruchu wskazówek zegara
-	glEnable(GL_CULL_FACE);// Włącza culling, czyli pomijanie tylnych ścianek  
-    glCullFace(GL_BACK);// Ustawia pomijanie tylnych ścianek
-
     glShadeModel(GL_SMOOTH);
 	glEnable(GL_LIGHTING); //Włączenie oświetlenia
 	glEnable(GL_LIGHT0); //Dodanie źródła światła
 	glEnable(GL_TEXTURE_2D); //Włącza teksturowanie
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glGenTextures(10,textureIDs);
+	glGenTextures(11,textureIDs);	
+	for(int i = 0;i<ALL;i++){
+		loadTexture(fileNames[i],ALL);
+	}
 }
 //Na 7 stycznia
 //Kule oteksturowane
 //Jedna z nich jest lampą (oświetlenie kierunkowe ale 4pi steradianów)
 //Planety wirują wokół osi Y (delikatnie pochylone)
 //Słońce wiruje wokół osi 
-//Planety latają wokół słońca na początku po okręgu potem elipsa
+// Planety latają wokół słońca na początku po okręgu potem elipsa
 //W jednym z ognisk elipsy słońce
 //Trecie prawo Keplera (zmienna prędkość)
-//Jeżeli się uda przypisać ziemi księżyc
-//2 Kamery sterowane przy użyciu myszy
-//Swobodna na sferze (biegunowa,azymut)
-//Umiejscowiona na planecie
+//Jeżeli się uda przypisać ziemi księżyc 
+//TODO - 2 Kamery sterowane przy użyciu myszy
+//TODO - Swobodna na sferze (biegunowa,azymut)
+//TODO - Umiejscowiona na planecie
 int main(int argc, char** argv){
     consoleWindow = GetConsoleWindow();
 	glutInit(&argc, argv);
@@ -271,6 +328,7 @@ int main(int argc, char** argv){
 	glutMotionFunc(mouse);
 	glutMouseWheelFunc(mouseWheel);
 	glutIdleFunc(animate);
+	glutTimerFunc(25, timer, 0);
 	glutMainLoop();
 	return 0;
 }
