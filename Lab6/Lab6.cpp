@@ -25,7 +25,7 @@ int currentPlanet = 3;
 Planet planets[PLANET_NUM];
 string planetNames[PLANET_NUM+1] = {"Mercury","Venus","Earth","Moon","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"};
 const char* fileNames[ALL] = {"textures\\2k_sun.tga","textures\\2k_mercury.tga","textures\\2k_venus_surface.tga","textures\\2k_earth_daymap.tga",
-	"textures\\2k_moon.tga","textures\\2k_mars.tga","textures\\2k_jupiter.tga","textures\\preview_saturn.tga","textures\\2k_uranus.tga",
+	"textures\\2k_moon.tga","textures\\2k_mars.tga","textures\\2k_jupiter.tga","textures\\saturnmapthumb.tga","textures\\2k_uranus.tga",
 	"textures\\2k_neptune.tga","textures\\plutomapthumb.tga"};
 
 float planetSizes[PLANET_NUM] = {2,6.5,7,6.5,14,10,8,8,5};
@@ -292,14 +292,6 @@ void init(){
 	planets[2].setMoonTexture(textureIDs[4]);
 }
 //Na 7 stycznia
-//Kule oteksturowane
-//Jedna z nich jest lampą (oświetlenie kierunkowe ale 4pi steradianów)
-//Planety wirują wokół osi Y (delikatnie pochylone)
-//Słońce wiruje wokół osi 
-// Planety latają wokół słońca na początku po okręgu potem elipsa
-//W jednym z ognisk elipsy słońce
-//Trecie prawo Keplera (zmienna prędkość)
-//Jeżeli się uda przypisać ziemi księżyc 
 //TODO - 2 Kamery sterowane przy użyciu myszy
 //TODO - Swobodna na sferze (biegunowa,azymut)
 //TODO - Umiejscowiona na planecie
