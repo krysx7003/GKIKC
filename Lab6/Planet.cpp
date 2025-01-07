@@ -52,20 +52,30 @@ void Planet::draw(u_int texture){
         glTranslatef(x, 0.0f, y);
         glRotatef(tilt, 1.0f, 0.0f, 0.0f);
         glRotatef(myMoon.spin, 0.0f, 1.0f, 0.0f);
-        axis();
+        glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, moonTexture);
-        glutSolidSphere(myMoon.size, myMoon.points, myMoon.points);  
+        GLUquadric *quad = gluNewQuadric();
+        gluQuadricTexture(quad, GL_TRUE); 
+        gluSphere(quad, myMoon.size,  myMoon.points,  myMoon.points);  
+        gluDeleteQuadric(quad);
+        glDisable(GL_TEXTURE_2D); 
         glPopMatrix();
     } 
     positon = {planetX, 0.0f, planetY};
+    glRotatef(90.0, 1.0f, 0.0f, 0.0f);
     glRotatef(tilt, 1.0f, 0.0f, 0.0f);
-    glRotatef(spin, 0.0f, 1.0f, 0.0f);
-    axis();
+    glRotatef(spin, 0.0f, 0.0f, 1.0f);
+    // axis();
     if(camera){
         gluLookAt(planetX, 0.0f, planetY,0,0,0,0,1,0);
     }
+    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glutSolidSphere(size,points,points);
+    GLUquadric *quad = gluNewQuadric();
+    gluQuadricTexture(quad, GL_TRUE);
+    gluSphere(quad,size,points,points);
+    gluDeleteQuadric(quad);
+    glDisable(GL_TEXTURE_2D); 
     glPopMatrix();
 }
 void Planet::drawOrbit(){

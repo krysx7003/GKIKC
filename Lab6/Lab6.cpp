@@ -13,26 +13,27 @@
 using namespace std;
 //Constants
 const int TEXT_HEIGHT = 13;
-const int PLANET_NUM = 10;//Moon is a planet
+const int PLANET_NUM = 9;
 const int ALL = 11;
 const int CAMERA_NUM = 2;
 //Global variables
 HWND consoleWindow;     
 HWND glutWindow;
-u_int textureIDs[PLANET_NUM];
+GLuint textureIDs[ALL];
 void *font = GLUT_BITMAP_8_BY_13;
 int currentPlanet = 3;
 Planet planets[PLANET_NUM];
-string planetNames[PLANET_NUM] = {"Mercury","Venus","Earth","Moon","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"};
-const char* fileNames[ALL] = {"textures\\2k_sun.png","textures\\2k_mercury.png","textures\\2k_venus_surface.png","textures\\2k_earth_daymap.png",
-	"textures\\2k_moon.png","textures\\2k_mars.png","textures\\2k_jupiter.png","textures\\preview_saturn.png","textures\\2k_uranus.png",
-	"textures\\2k_neptune.png","textures\\plutomapthumb.png",};
-float planetSizes[PLANET_NUM] = {2,6.5,7,2,6.5,14,10,8,8,5};
-float planetDistances[PLANET_NUM] = {15.0,25.0,35,13,50.0f,70.0f,80.0f,90.0f,100.0f,110.0f};
-float planetAxialTilts[PLANET_NUM] = {0.03f,177.4f,23.5f,6.7,25.2f,3.1f,26.7f,97.8f,28.3f,122.5f};
-float xAxis[PLANET_NUM] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-float yAxis[PLANET_NUM] = {1.3f, 1.3f, 1.2f, 1.0f, 1.21f, 1.25f, 1.15f, 1.25f, 1.2f, 1.4f};
-float planetOrbitalTilts[PLANET_NUM] = {7.0,3.39,0.0,5.1,1.85,1.31,2.49,0.77,1.77,17.16} ;
+string planetNames[PLANET_NUM+1] = {"Mercury","Venus","Earth","Moon","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"};
+const char* fileNames[ALL] = {"textures\\2k_sun.tga","textures\\2k_mercury.tga","textures\\2k_venus_surface.tga","textures\\2k_earth_daymap.tga",
+	"textures\\2k_moon.tga","textures\\2k_mars.tga","textures\\2k_jupiter.tga","textures\\preview_saturn.tga","textures\\2k_uranus.tga",
+	"textures\\2k_neptune.tga","textures\\plutomapthumb.tga"};
+
+float planetSizes[PLANET_NUM] = {2,6.5,7,6.5,14,10,8,8,5};
+float planetDistances[PLANET_NUM] = {15.0,25.0,35,50.0f,70.0f,80.0f,90.0f,100.0f,110.0f};
+float planetAxialTilts[PLANET_NUM] = {0.03f,177.4f,23.5f,25.2f,3.1f,26.7f,97.8f,28.3f,122.5f};
+float xAxis[PLANET_NUM] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+float yAxis[PLANET_NUM] = {1.3f, 1.3f, 1.2f, 1.21f, 1.25f, 1.15f, 1.25f, 1.2f, 1.4f};
+float planetOrbitalTilts[PLANET_NUM] = {7.0,3.39,0.0,1.85,1.31,2.49,0.77,1.77,17.16} ;
 int currentCamera = 0; 
 string cameraNames[CAMERA_NUM] = {"Wolna","Na planecie"};
 float pix2angle = 360.0/800,theta = 0.0f,phi = 0.0f;
@@ -218,15 +219,6 @@ void animate(){
 	planets[2].moveMoon(0.1f);
 	glutPostRedisplay();
 }
-void drawTexturedSquare(GLint textureID) {
-    glEnable(GL_TEXTURE_2D);                  // Enable texturing
-    glBindTexture(GL_TEXTURE_2D, textureID); // Bind the texture
-
-	glColor3f(1.0, 1.0, 1.0); 
-	glutSolidTeapot(1);
-
-    glDisable(GL_TEXTURE_2D); // Disable texturing
-}
 void display(){
 	GLfloat lPos[] = {0,0,0,1};
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -238,21 +230,19 @@ void display(){
 		planets[currentPlanet].setCamera();
 	}
 	glLightfv(GL_LIGHT0,GL_POSITION,lPos);
-	drawTexturedSquare(textureIDs[0]);
-	// sun.draw(textureIDs[0]);
-	// for(int i = 0;i<PLANET_NUM;i++){
-	// 	if(i!=3){
-	// 		glPushMatrix();
-	// 		glRotatef(planetOrbitalTilts[i], 1.0f, 0.0f, 0.0f);
-	// 		planets[i].drawOrbit();
-	// 		planets[i].draw(textureIDs[i+1]);
-	// 		glPopMatrix();
-	// 	}
-	// }
+	sun.draw(textureIDs[0]);
+	for(int i = 0;i<PLANET_NUM;i++){
+		glPushMatrix();
+		glRotatef(planetOrbitalTilts[i], 1.0f, 0.0f, 0.0f);
+		planets[i].drawOrbit();
+		planets[i].draw(textureIDs[i+1]);
+		glPopMatrix();
+	}
     showInfo();
 	glutSwapBuffers();
 }
-void loadTexture(const char* fileName,int texID){	
+void loadTexture(const char* fileName,GLuint texID){
+	glGenTextures(1,&textureIDs[texID]);	
     glBindTexture(GL_TEXTURE_2D, textureIDs[texID]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -263,8 +253,7 @@ void loadTexture(const char* fileName,int texID){
 	if (data){
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		cout << "Texture loaded successfully: " << fileName << endl;
-	}
-	else{
+	}else{
 		cout << "Failed to load texture! "<< fileName <<" " <<stbi_failure_reason()<< endl;
 		system("pause");
 		exit(1);
@@ -284,7 +273,7 @@ void init(){
 		}
 	}
 	moon newMoon = {
-		25,planetSizes[3],0,planetDistances[3],planets[2].getPosition(),planetAxialTilts[3]
+		25,2,0,13,planets[2].getPosition(),6.7
 	};
 	planets[2].addMoon(newMoon);
     glEnable(GL_DEPTH_TEST); //bez tego frontalna sciana nadpisuje tylnią
@@ -297,10 +286,10 @@ void init(){
 	glEnable(GL_LIGHT0); //Dodanie źródła światła
 	glEnable(GL_TEXTURE_2D); //Włącza teksturowanie
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glGenTextures(11,textureIDs);	
 	for(int i = 0;i<ALL;i++){
-		loadTexture(fileNames[i],ALL);
+		loadTexture(fileNames[i],i);
 	}
+	planets[2].setMoonTexture(textureIDs[4]);
 }
 //Na 7 stycznia
 //Kule oteksturowane
