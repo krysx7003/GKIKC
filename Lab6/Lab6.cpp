@@ -27,7 +27,6 @@ string planetNames[PLANET_NUM+1] = {"Mercury","Venus","Earth","Moon","Mars","Jup
 const char* fileNames[ALL] = {"textures\\2k_sun.tga","textures\\2k_mercury.tga","textures\\2k_venus_surface.tga","textures\\2k_earth_daymap.tga",
 	"textures\\2k_moon.tga","textures\\2k_mars.tga","textures\\2k_jupiter.tga","textures\\saturnmapthumb.tga","textures\\2k_uranus.tga",
 	"textures\\2k_neptune.tga","textures\\plutomapthumb.tga"};
-
 float planetSizes[PLANET_NUM] = {2,6.5,7,6.5,14,10,8,8,5};
 float planetDistances[PLANET_NUM] = {15.0,25.0,35,50.0f,70.0f,80.0f,90.0f,100.0f,110.0f};
 float planetAxialTilts[PLANET_NUM] = {0.03f,177.4f,23.5f,25.2f,3.1f,26.7f,97.8f,28.3f,122.5f};
@@ -41,7 +40,7 @@ int radius = 35,lastX = 0,lastY = 0;
 float cameraRotationX = radius * cosf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
 float cameraRotationY = radius * sinf((phi*(M_PI/180)));
 float cameraRotationZ = radius * sinf((theta*(M_PI/180))) * cosf((phi*(M_PI/180)));
-float cameraX = 0,cameraY = 0;
+float cameraX = 35,cameraY = 35,cameraZ = 35;
 Sun sun;
 //Window controls
 void toggleFocusToConsole() {
@@ -100,25 +99,25 @@ void normalKey(u_char key,int x,int y){
 	case 'W':
 	case 'w':
 		if(currentCamera == 0){
-			cameraY += 10.0f;
+			cameraY -= 10.0f;
 		}	
 		break;
 	case 'A':
 	case 'a':
 		if(currentCamera == 0){
-			cameraX += 10.0f;
+			cameraX -= 10.0f;
 		}
 		break;
 	case 'S':
 	case 's':
 		if(currentCamera == 0){
-			cameraY -= 10.0f;
+			cameraY += 10.0f;
 		}
 		break;
 	case 'D':
 	case 'd':
 		if(currentCamera == 0){
-			cameraX -= 10.0f;
+			cameraX += 10.0f;
 		}
 		break;
 	case 27:
@@ -225,7 +224,7 @@ void display(){
 	glLoadIdentity();
 	glTranslatef(-cameraX,0.0f,-cameraY);
 	if(currentCamera==0){
-		gluLookAt(cameraRotationX,cameraRotationY,cameraRotationZ,0,0,0,0,1,0);
+		gluLookAt(cameraX + cameraRotationX,cameraY + cameraRotationY,cameraZ + cameraRotationZ , cameraX, cameraY, cameraZ,0,1,0);
 	}else{
 		planets[currentPlanet].setCamera();
 	}
@@ -252,7 +251,6 @@ void loadTexture(const char* fileName,GLuint texID){
 	unsigned char *data = stbi_load(fileName, &width, &height, &nrChannels, 0);
 	if (data){
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		cout << "Texture loaded successfully: " << fileName << endl;
 	}else{
 		cout << "Failed to load texture! "<< fileName <<" " <<stbi_failure_reason()<< endl;
 		system("pause");
