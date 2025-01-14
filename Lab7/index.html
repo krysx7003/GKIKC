@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lab7 WebGL</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+      crossorigin="anonymous"
+      defer></script>
+  </head>
+
+  <body>
+    <div class="container">
+        <form>
+          <input type="checkbox" id="rotateX"> Rotacja X
+          <input type="checkbox" id="rotateY"> Rotacja Y
+          <input type="checkbox" id="rotateZ"> Rotacja Z
+        </form>
+        <div class="slidecontainer">
+            <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+        </div>
+        <canvas id="gl-canvas"></canvas>
+    </div>
+    <script src="js/Lab7.js"type="module"></script>
+  </body>
+</html>
