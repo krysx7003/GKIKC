@@ -1,4 +1,4 @@
-function drawScene(gl, programInfo, buffers,squareRotation) {
+function drawScene(gl, programInfo, buffers,rotationX,rotationY,rotationZ) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -19,8 +19,20 @@ function drawScene(gl, programInfo, buffers,squareRotation) {
     mat4.rotate(
         modelViewMatrix, // destination matrix
         modelViewMatrix, // matrix to rotate
-        squareRotation, // amount to rotate in radians
+        rotationZ, // amount to rotate in radians
         [0, 0, 1],
+      ); // axis to rotate around (Z)
+    mat4.rotate(
+        modelViewMatrix, // destination matrix
+        modelViewMatrix, // matrix to rotate
+        rotationY , // amount to rotate in radians
+        [0, 1, 0],
+      ); // axis to rotate around (Y)
+    mat4.rotate(
+        modelViewMatrix, // destination matrix
+        modelViewMatrix, // matrix to rotate
+        rotationX , // amount to rotate in radians
+        [1, 0, 0],
       );
     setPositionAttribute(gl, buffers, programInfo);
     setColorAttribute(gl, buffers, programInfo);
@@ -37,10 +49,11 @@ function drawScene(gl, programInfo, buffers,squareRotation) {
         modelViewMatrix,
     );
     {
+        const vertexCount = 36;
+        const type = gl.UNSIGNED_SHORT;
         const offset = 0;
-        const vertexCount = 4;
-        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
-    }
+        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+    }      
   }
 function setPositionAttribute(gl, buffers, programInfo) {
     const numComponents = 3; // pull out 3 values per iteration

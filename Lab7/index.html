@@ -13,15 +13,19 @@
 
   <body>
     <div class="container">
-        <form>
-          <input type="checkbox" id="rotateX"> Rotacja X
-          <input type="checkbox" id="rotateY"> Rotacja Y
-          <input type="checkbox" id="rotateZ"> Rotacja Z
-        </form>
-        <div class="slidecontainer">
-            <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-        </div>
-        <canvas id="gl-canvas"></canvas>
+      <form>
+        <input type="checkbox" id="cube"> Sześcian
+        <input type="checkbox" id="tetrahedron"> Czworościan
+      </form>
+      <form>
+        <input type="checkbox" id="rotateX"> Rotacja X
+        <input type="checkbox" id="rotateY"> Rotacja Y
+        <input type="checkbox" id="rotateZ"> Rotacja Z
+      </form>
+      <div class="slidecontainer">
+          <input type="range" min="1" max="100" value="50" class="slider" id="speedRange">
+      </div>
+      <canvas id="gl-canvas"></canvas>
     </div>
     <script src="js/Lab7.js"type="module"></script>
   </body>

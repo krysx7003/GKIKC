@@ -3,11 +3,56 @@ import { drawScene } from "./draw-scene.js";
 
 main();
 
-let squareRotation = 0.0;
-let deltaTime = 0;
+let speed = 50;
 
+let rotateX = false;
+let rotateY = false;
+let rotateZ = false;
+let selectedShape = "cube";
+let rotationX = 0;
+let rotationY = 0;
+let rotationZ = 0;
+
+document.getElementById("rotateX").checked = false;
+document.getElementById("rotateX").addEventListener("change", (event) => {
+  rotateX = event.target.checked;
+  console.log("Rotate X:", rotateX);
+});
+document.getElementById("rotateY").checked = false;
+document.getElementById("rotateY").addEventListener("change", (event) => {
+  rotateY = event.target.checked; 
+  console.log("Rotate Y:", rotateY);
+});
+document.getElementById("rotateZ").checked = false;
+document.getElementById("rotateZ").addEventListener("change", (event) => {
+  rotateZ = event.target.checked;
+  console.log("Rotate Z:", rotateZ);
+});
+document.getElementById("cube").checked = true;
+document.getElementById("cube").addEventListener("change", (event) => {
+  if (event.target.checked) {
+      selectedShape = "cube";
+      document.getElementById("tetrahedron").checked = false;
+      console.log("Selected shape:", selectedShape);
+  }
+});
+document.getElementById("tetrahedron").checked = false;
+document.getElementById("tetrahedron").addEventListener("change", (event) => {
+  if (event.target.checked) {
+      selectedShape = "tetrahedron"; 
+      document.getElementById("cube").checked = false;
+      console.log("Selected shape:", selectedShape);
+  }
+});
+document.getElementById("speedRange").value = speed;
+document.getElementById("speedRange").addEventListener("input", (event) => {
+  speed = event.target.value; // Update rotation speed
+  console.log("Rotation speed:", speed);
+});
 function main() {
     const canvas = document.querySelector("#gl-canvas");
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     const gl = canvas.getContext("webgl");
     if (gl === null) {
         alert(
@@ -15,6 +60,7 @@ function main() {
         );
         return;
     }
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     const vsSource = `
@@ -47,21 +93,14 @@ function main() {
         },
       };
     const buffers = initBuffers(gl);
-    let then = 0;
-
-    // Draw the scene repeatedly
     function render(now) {
-    now *= 0.001; // convert to seconds
-    deltaTime = now - then;
-    then = now;
-
-    drawScene(gl, programInfo, buffers, squareRotation);
-    squareRotation += deltaTime;
-
-    requestAnimationFrame(render);
+      rotationX = rotateX ? rotationX + speed * 0.001 : rotationX;
+      rotationY = rotateY ? rotationY + speed * 0.001 : rotationY;
+      rotationZ = rotateZ ? rotationZ + speed * 0.001 : rotationZ;
+      drawScene(gl, programInfo, buffers, rotationX,rotationY,rotationZ);
+      requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
-
 }
 function initShaderProgram(gl, vsSource, fsSource) {
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
