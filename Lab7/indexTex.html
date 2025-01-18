@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lab7 WebGL</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+      crossorigin="anonymous"
+      defer></script>
+    <script src="js/init-buffers.js"></script>
+    <script src="js/draw-scene.js"></script>
+    <script src="js/Lab7.js"></script>
+    <script>
+      function loadTexture(gl,shape) {
+        const texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        const level = 0; 
+        const internalFormat = gl.RGBA;
+        const width = 1;
+        const height = 1;
+        const border = 0;
+        const srcFormat = gl.RGBA;
+        const srcType = gl.UNSIGNED_BYTE;
+        const pixel = new Uint8Array([0, 0, 255, 255]);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          level,
+          internalFormat,
+          width,
+          height,
+          border,
+          srcFormat,
+          srcType,
+          pixel,
+        );
+        const base64Image1 = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUh...";
+        const base64Image2 = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUh...";
+        //Te dwie zmienne w orginale zawierają tekstury zakodowane w base64 żeby nie zaśmiecać 
+        //sprawozdania losowymi znakami uciąłem ciągi danych
+      const image = new Image();
+      image.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          level,
+          internalFormat,
+          srcFormat,
+          srcType,
+          image,
+        );
+        if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+          gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+      };
+      if(shape == "cube"){
+        image.src = base64Image1;
+      }else if(shape == "tetr"){
+        image.src = base64Image2;
+      }
+      return texture;
+    }
+    function isPowerOf2(value) {
+      return (value & (value - 1)) === 0;
+    }
+    </script>
+  </head>
+
+  <body onload="main()">
+    <div class="container">
+      <form>
+        <input type="checkbox" id="cube"> Sześcian
+        <input type="checkbox" id="tetrahedron"> Czworościan
+      </form>
+      <form>
+        <input type="checkbox" id="rotateX"> Rotacja X
+        <input type="checkbox" id="rotateY"> Rotacja Y
+        <input type="checkbox" id="rotateZ"> Rotacja Z
+      </form>
+      <div class="slidecontainer">
+          <input type="range" min="1" max="100" value="50" class="slider" id="speedRange">
+      </div>
+      <canvas id="gl-canvas"></canvas>
+      <script>
+        document.getElementById("rotateX").checked = false;
+        document.getElementById("rotateX").addEventListener("change", (event) => {
+          rotateX = event.target.checked;
+          console.log("Rotate X:", rotateX);
+        });
+        document.getElementById("rotateY").checked = false;
+        document.getElementById("rotateY").addEventListener("change", (event) => {
+          rotateY = event.target.checked; 
+          console.log("Rotate Y:", rotateY);
+        });
+        document.getElementById("rotateZ").checked = false;
+        document.getElementById("rotateZ").addEventListener("change", (event) => {
+          rotateZ = event.target.checked;
+          console.log("Rotate Z:", rotateZ);
+        });
+        document.getElementById("cube").checked = true;
+        document.getElementById("cube").addEventListener("change", (event) => {
+          if (event.target.checked) {
+              selectedShape = "cube";
+              document.getElementById("tetrahedron").checked = false;
+              [prevX, rotationX] = [rotationX, prevX];
+              [prevY, rotationY] = [rotationY, prevY];
+              [prevZ, rotationZ] = [rotationZ, prevZ];
+              console.log("Selected shape:", selectedShape);
+          }
+        });
+        document.getElementById("tetrahedron").checked = false;
+        document.getElementById("tetrahedron").addEventListener("change", (event) => {
+          if (event.target.checked) {
+              selectedShape = "tetrahedron"; 
+              document.getElementById("cube").checked = false;
+              [prevX, rotationX] = [rotationX, prevX];
+              [prevY, rotationY] = [rotationY, prevY];
+              [prevZ, rotationZ] = [rotationZ, prevZ];
+              console.log("Selected shape:", selectedShape);
+          }
+        });
+        document.getElementById("speedRange").value = speed;
+        document.getElementById("speedRange").addEventListener("input", (event) => {
+          speed = event.target.value;
+          console.log("Rotation speed:", speed);
+        });
+      </script>
+    </div>
+  </body>
+</html>

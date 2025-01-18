@@ -1,0 +1,107 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{datetime}
+\usepackage{geometry}
+\usepackage{placeins}
+\usepackage{minted}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage[document]{ragged2e}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\geometry{
+ a4paper,
+ left=25mm,
+ top=25mm,
+ }
+\captionsetup{hypcap=false} 
+\newdateformat{daymonthyear}{\THEDAY .\THEMONTH .\THEYEAR}
+\title{
+  \centering
+  \includegraphics[width=\textwidth]{images/logo_PWr_kolor_poziom.png}\\
+  \fontsize{28pt}{30pt}\selectfont Sprawozdanie 7\\
+  \fontsize{14pt}{30pt}\selectfont Ćwiczenie 7.WebGL}
+\author{Krzysztof Zalewa}
+\date{\daymonthyear\today}
+\renewcommand*\contentsname{Spis treści}
+\renewcommand{\figurename}{Rysunek}
+\renewcommand{\listingscaption}{Fragment kodu}
+\begin{document}
+    \maketitle
+    \pagebreak
+    \tableofcontents
+    \FloatBarrier
+    \section{Wstęp teoretyczny}
+        \subsection{}
+    \section{Zadanie laboratoryjne}
+        \raggedright
+        \subsection{Treść zadania}
+            W ramach zadania laboratoryjnego należało napisać program kożystający z WebGL.
+            Program ten miał wyświetlić dwa obiekty sześcia z brakującą ścianką i czworościan.
+            Powinna być możliwość obrotu obiektów, wyboru który obiekt obracamy oraz zwiększenie
+            lub zmniejszenie prędkości obrotu.
+        \subsection{Opis działania programu}
+            Program rysuje obiekty zgodnie z treścią zadania. W prawym górnym rogu znajdują się 
+            przyciski które pozwalają na kontrolę obracania. Poniżej przycisków znajduje się suwak
+            który pozwala na przyspieszenie lub zwolnienie animacji.
+        \subsection{Kod programu}
+            \begin{frame}
+                \scriptsize
+                \inputminted[
+                    style={vs},
+                    breaklines,
+                    breakanywhere, 
+                    linenos, 
+                    tabsize=4 
+                ]{html}{indexTex.html}
+                \vspace{1em}
+                \captionof{listing}{Fragment kodu z programu}
+                \label{lst:html}
+            \end{frame}
+            \begin{frame}
+                \scriptsize
+                \inputminted[
+                    style={vs},
+                    breaklines,
+                    breakanywhere, 
+                    linenos, 
+                    tabsize=4 
+                ]{js}{./js/Lab7.js}
+                \vspace{1em}
+                \captionof{listing}{Fragment kodu z programu}
+                \label{lst:main}
+            \end{frame}
+            \begin{frame}
+                \scriptsize
+                \inputminted[
+                    style={vs},
+                    breaklines,
+                    breakanywhere, 
+                    linenos, 
+                    tabsize=4 
+                ]{js}{./js/init-buffers.js}
+                \vspace{1em}
+                \captionof{listing}{Fragment kodu z programu}
+                \label{lst:init}
+            \end{frame}
+            \begin{frame}
+                \scriptsize
+                \inputminted[
+                    style={vs},
+                    breaklines,
+                    breakanywhere, 
+                    linenos, 
+                    tabsize=4 
+                ]{js}{./js/draw-scene.js}
+                \vspace{1em}
+                \captionof{listing}{Fragment kodu z programu}
+                \label{lst:draw}
+            \end{frame}
+    \section{Źródła}
+        \begin{enumerate}[label=\arabic*.]
+            \item 
+        \end{enumerate}
+\end{document}
