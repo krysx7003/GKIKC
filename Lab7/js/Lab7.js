@@ -1,8 +1,3 @@
-import { initBuffers } from "./init-buffers.js";
-import { drawScene } from "./draw-scene.js";
-
-main();
-
 let speed = 50;
 
 let rotateX = false;
@@ -12,43 +7,10 @@ let selectedShape = "cube";
 let rotationX = 0;
 let rotationY = 0;
 let rotationZ = 0;
+let prevX = 0;
+let prevY = 0;
+let prevZ = 0;
 
-document.getElementById("rotateX").checked = false;
-document.getElementById("rotateX").addEventListener("change", (event) => {
-  rotateX = event.target.checked;
-  console.log("Rotate X:", rotateX);
-});
-document.getElementById("rotateY").checked = false;
-document.getElementById("rotateY").addEventListener("change", (event) => {
-  rotateY = event.target.checked; 
-  console.log("Rotate Y:", rotateY);
-});
-document.getElementById("rotateZ").checked = false;
-document.getElementById("rotateZ").addEventListener("change", (event) => {
-  rotateZ = event.target.checked;
-  console.log("Rotate Z:", rotateZ);
-});
-document.getElementById("cube").checked = true;
-document.getElementById("cube").addEventListener("change", (event) => {
-  if (event.target.checked) {
-      selectedShape = "cube";
-      document.getElementById("tetrahedron").checked = false;
-      console.log("Selected shape:", selectedShape);
-  }
-});
-document.getElementById("tetrahedron").checked = false;
-document.getElementById("tetrahedron").addEventListener("change", (event) => {
-  if (event.target.checked) {
-      selectedShape = "tetrahedron"; 
-      document.getElementById("cube").checked = false;
-      console.log("Selected shape:", selectedShape);
-  }
-});
-document.getElementById("speedRange").value = speed;
-document.getElementById("speedRange").addEventListener("input", (event) => {
-  speed = event.target.value; // Update rotation speed
-  console.log("Rotation speed:", speed);
-});
 function main() {
     const canvas = document.querySelector("#gl-canvas");
     canvas.width = canvas.clientWidth;
@@ -96,13 +58,14 @@ function main() {
       },
     };    
     const buffers = initBuffers(gl);
-    const texture = loadTexture(gl, "tekstura1.png");
+    const texture1 = loadTexture(gl, "tekstura1.png");
+    const texture2 = loadTexture(gl, "tekstura2.png");
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     function render(now) {
-      rotationX = rotateX ? rotationX + speed * 0.001 : rotationX;
-      rotationY = rotateY ? rotationY + speed * 0.001 : rotationY;
-      rotationZ = rotateZ ? rotationZ + speed * 0.001 : rotationZ;
-      drawScene(gl, programInfo, buffers, rotationX,rotationY,rotationZ,texture,selectedShape);
+      rotationX = rotateX ? rotationX + speed * 0.002 : rotationX;
+      rotationY = rotateY ? rotationY + speed * 0.002 : rotationY;
+      rotationZ = rotateZ ? rotationZ + speed * 0.002 : rotationZ;
+      drawScene(gl, programInfo, buffers, rotationX,rotationY,rotationZ,prevX,prevY,prevZ,texture1,texture2,selectedShape);
       requestAnimationFrame(render);
     }
     requestAnimationFrame(render);

@@ -9,9 +9,12 @@
       integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
       crossorigin="anonymous"
       defer></script>
+    <script src="js/init-buffers.js"></script>
+    <script src="js/draw-scene.js"></script>
+    <script src="js/Lab7.js"></script>
   </head>
 
-  <body>
+  <body onload="main()">
     <div class="container">
       <form>
         <input type="checkbox" id="cube"> Sześcian
@@ -26,7 +29,50 @@
           <input type="range" min="1" max="100" value="50" class="slider" id="speedRange">
       </div>
       <canvas id="gl-canvas"></canvas>
+      <script>
+        document.getElementById("rotateX").checked = false;
+        document.getElementById("rotateX").addEventListener("change", (event) => {
+          rotateX = event.target.checked;
+          console.log("Rotate X:", rotateX);
+        });
+        document.getElementById("rotateY").checked = false;
+        document.getElementById("rotateY").addEventListener("change", (event) => {
+          rotateY = event.target.checked; 
+          console.log("Rotate Y:", rotateY);
+        });
+        document.getElementById("rotateZ").checked = false;
+        document.getElementById("rotateZ").addEventListener("change", (event) => {
+          rotateZ = event.target.checked;
+          console.log("Rotate Z:", rotateZ);
+        });
+        document.getElementById("cube").checked = true;
+        document.getElementById("cube").addEventListener("change", (event) => {
+          if (event.target.checked) {
+              selectedShape = "cube";
+              document.getElementById("tetrahedron").checked = false;
+              [prevX, rotationX] = [rotationX, prevX];
+              [prevY, rotationY] = [rotationY, prevY];
+              [prevZ, rotationZ] = [rotationZ, prevZ];
+              console.log("Selected shape:", selectedShape);
+          }
+        });
+        document.getElementById("tetrahedron").checked = false;
+        document.getElementById("tetrahedron").addEventListener("change", (event) => {
+          if (event.target.checked) {
+              selectedShape = "tetrahedron"; 
+              document.getElementById("cube").checked = false;
+              [prevX, rotationX] = [rotationX, prevX];
+              [prevY, rotationY] = [rotationY, prevY];
+              [prevZ, rotationZ] = [rotationZ, prevZ];
+              console.log("Selected shape:", selectedShape);
+          }
+        });
+        document.getElementById("speedRange").value = speed;
+        document.getElementById("speedRange").addEventListener("input", (event) => {
+          speed = event.target.value;
+          console.log("Rotation speed:", speed);
+        });
+      </script>
     </div>
-    <script src="js/Lab7.js"type="module"></script>
   </body>
 </html>
